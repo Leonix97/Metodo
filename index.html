@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Modo Hilo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f2ec; --card:#ffffff; --ink:#1d1a17; --muted:#6f675e; --line:#e6ded3;
+  --accent:#d6452b; --accent-ink:#fff; --soft:#fbe9e4; --ok:#2f8a5b; --okbg:#e3f3ea;
+  --warn:#b7791f; --warnbg:#fbf0dc; --stop:#b42318; --stopbg:#fde7e5; --chip:#efe7dc;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141210; --card:#1e1b18; --ink:#f3ede6; --muted:#a69c90; --line:#302b26;
+    --accent:#ff6a4d; --accent-ink:#1a0d09; --soft:#3a1f19; --ok:#5fcf94; --okbg:#173126;
+    --warn:#f0b35a; --warnbg:#33281a; --stop:#ff7a6e; --stopbg:#3a1a17; --chip:#2a2521;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141210; --card:#1e1b18; --ink:#f3ede6; --muted:#a69c90; --line:#302b26;
+  --accent:#ff6a4d; --accent-ink:#1a0d09; --soft:#3a1f19; --ok:#5fcf94; --okbg:#173126;
+  --warn:#f0b35a; --warnbg:#33281a; --stop:#ff7a6e; --stopbg:#3a1a17; --chip:#2a2521;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.45;padding-bottom:88px}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:12px;padding-bottom:10px}
+h1{font-family:Fraunces,serif;font-weight:800;font-size:24px;margin:0;letter-spacing:-.5px}
+h1 span{color:var(--accent)}
+h2{font-family:Fraunces,serif;font-size:22px;margin:18px 0 6px;letter-spacing:-.3px}
+h3{font-size:15px;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+p{margin:6px 0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;border-radius:12px;padding:12px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.block{width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row > .btn{flex:1 1 0;min-width:0}
+.chip{display:inline-block;background:var(--chip);border-radius:999px;padding:4px 10px;font-size:13px;margin:2px 4px 2px 0}
+.phase-bar{display:flex;gap:4px;margin:12px 0 4px}
+.phase-bar button{flex:1;height:8px;border-radius:4px;border:0;background:var(--line);padding:0;cursor:pointer}
+.phase-bar button.done{background:var(--accent);opacity:.45}
+.phase-bar button.on{background:var(--accent)}
+.phase-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.big{font-family:Fraunces,serif;font-size:30px;font-weight:800;line-height:1.1;margin:6px 0}
+.say{border-left:4px solid var(--accent);background:var(--soft);padding:10px 12px;border-radius:0 12px 12px 0;margin:8px 0;font-size:17px}
+.say small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.tip{background:var(--okbg);border-radius:12px;padding:10px 12px;margin:8px 0}
+.warn{background:var(--warnbg);border-radius:12px;padding:10px 12px;margin:8px 0}
+.stop{background:var(--stopbg);border-radius:12px;padding:10px 12px;margin:8px 0;color:var(--ink)}
+.stop b{color:var(--stop)}
+.ioi{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ioi button{text-align:left;font-size:14px;font-weight:500;padding:10px}
+.ioi button.on{background:var(--okbg);border-color:var(--ok)}
+.meter{height:10px;background:var(--line);border-radius:5px;overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;background:var(--ok);width:0;transition:width .25s}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:10;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs .wrap{display:flex;justify-content:space-between;padding:6px 8px}
+nav.tabs button{flex:1;background:none;border:0;color:var(--muted);font:inherit;font-size:11px;font-weight:600;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav.tabs button.on{color:var(--accent)}
+nav.tabs svg{width:22px;height:22px}
+.view{display:none}.view.on{display:block}
+input[type=search]{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:8px 0;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:8px 0;overflow:hidden}
+summary{list-style:none;padding:14px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--muted);font-weight:400}
+details[open] summary::after{content:"–"}
+details .in{padding:0 14px 14px}
+.line{padding:10px 0;border-top:1px solid var(--line)}
+.line:first-child{border-top:0}
+.line .t{font-size:16px}
+.line .w{font-size:13px;color:var(--muted);margin-top:2px}
+.copy{float:right;background:none;border:0;color:var(--muted);font-size:12px;cursor:pointer;padding:2px 0 2px 8px}
+.timer{font-family:Fraunces,serif;font-size:56px;font-weight:800;text-align:center;margin:4px 0}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.on{opacity:1}
+.theme{background:none;border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:6px 10px;font:inherit;font-size:13px;cursor:pointer}
+ol,ul{padding-left:20px;margin:6px 0}
+li{margin:4px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.kpi b{display:block;font-family:Fraunces,serif;font-size:24px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Modo <span>Hilo</span></h1>
+  <button class="theme" id="themeBtn" aria-label="Cambiar tema">◐</button>
+</div></header>
+
+<main class="wrap">
+
+<!-- ============ AHORA ============ -->
+<section class="view" id="v-ahora">
+  <div class="phase-bar" id="phaseBar"></div>
+  <div class="phase-title">
+    <span class="muted small" id="phaseNum"></span>
+    <span class="muted small" id="phaseGoalShort"></span>
+  </div>
+  <div class="big" id="phaseName"></div>
+  <p id="phaseGoal"></p>
+
+  <div class="card">
+    <h3 style="margin-top:0">Di algo así</h3>
+    <div id="phaseSay"></div>
+    <button class="btn block" id="moreSay">Otra frase ↻</button>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Pasa a la siguiente fase cuando…</h3>
+    <ul id="phaseNext"></ul>
+    <div class="warn" id="phaseError"></div>
+  </div>
+
+  <div class="row">
+    <button class="btn" id="prevPhase">← Atrás</button>
+    <button class="btn primary" id="nextPhase">Siguiente fase →</button>
+  </div>
+
+  <div class="card">
+    <div class="phase-title"><b>Señales de interés</b><span class="muted small" id="ioiCount">0</span></div>
+    <div class="meter"><i id="ioiMeter"></i></div>
+    <p class="small muted" id="ioiHint">Toca las señales que notes. Con 3 claras, puedes subir un nivel.</p>
+    <div class="ioi" id="ioiGrid"></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn ghost" id="ioiReset">Reiniciar</button>
+      <button class="btn ghost" id="coldBtn">Señales de “no”</button>
+    </div>
+    <div id="coldBox"></div>
+  </div>
+
+  <button class="btn primary block" id="blankBtn" style="margin-top:6px">⚡ Me quedé en blanco</button>
+  <div id="blankOut"></div>
+</section>
+
+<!-- ============ FRASES ============ -->
+<section class="view on" id="v-frases">
+  <h2>Técnicas y temas</h2>
+  <p class="muted small">Entradas, temas de conversación, juegos y apuestas a un toque. Saca uno al azar o busca en la lista.</p>
+  <div class="card">
+    <b>Dame uno ya</b>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" data-rnd="ab">🚪 Entrada</button>
+      <button class="btn" data-rnd="tem,prof">💬 Tema</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" data-rnd="prof">💭 Pregunta profunda</button>
+      <button class="btn" data-rnd="coq">🔥 Coqueteo</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" data-rnd="juego,val">🎲 Técnica</button>
+      <button class="btn" data-rnd="apu">🤝 Apuesta</button>
+    </div>
+    <div id="rndOut"></div>
+  </div>
+  <input type="search" id="q" placeholder="Buscar: grupo, número, silencio, café…">
+  <div class="filters" id="cats"></div>
+  <div id="lines"></div>
+</section>
+
+<!-- ============ ESCENARIOS ============ -->
+<section class="view" id="v-esc">
+  <h2>Escenarios</h2>
+  <p class="muted small">Situaciones concretas: qué está pasando, qué hacer y qué decir.</p>
+  <div class="filters" id="escCats"></div>
+  <div id="escList"></div>
+</section>
+
+<!-- ============ RESCATE ============ -->
+<section class="view" id="v-rescate">
+  <h2>Rescate</h2>
+  <p class="muted small">Para cuando la conversación se cae o te gana el nervio.</p>
+
+  <div class="card">
+    <b>Regla de los 3 segundos</b>
+    <p class="small muted">Viste a alguien con quien quieres hablar. No le des vueltas: acércate antes de que el cero te alcance.</p>
+    <div class="timer" id="tval">3</div>
+    <button class="btn primary block" id="tbtn">Empezar cuenta</button>
+  </div>
+
+  <div class="card">
+    <b>Generador de hilo</b>
+    <p class="small muted">Elige de dónde sacar el próximo tema.</p>
+    <div class="row">
+      <button class="btn" data-th="obs">👀 Lo que ves</button>
+      <button class="btn" data-th="ella">💬 Lo que dijo</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" data-th="hist">📖 Una historia tuya</button>
+      <button class="btn" data-th="juego">🎲 Un juego</button>
+    </div>
+    <div id="thOut"></div>
+  </div>
+
+  <div class="card">
+    <b>Respira antes de entrar</b>
+    <p class="small">El libro insiste: los nervios son “una china en el zapato”, molestan pero no deciden. Haz esto 2 veces:</p>
+    <ol class="small">
+      <li>Inhala 4 segundos por la nariz.</li>
+      <li>Aguanta 4.</li>
+      <li>Exhala 6 por la boca, hombros abajo.</li>
+      <li>Sonríe antes de dar el primer paso. Es lo primero que ve la otra persona.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <b>Si te rechazan</b>
+    <div class="say">“Ok, gracias igual. Que pasen buena noche.”<small>Sonrisa, te vas sin drama. Eso es todo.</small></div>
+    <p class="small">Un “no” es información, no un juicio sobre ti. En el libro, Style anota cada intento y se pregunta qué ajustaría — no culpa a la otra persona.</p>
+  </div>
+</section>
+
+<!-- ============ MÉTODO ============ -->
+<section class="view" id="v-metodo">
+  <h2>El método, resumido</h2>
+  <p class="muted small">Lo que <i>El método</i> (Neil Strauss) enseña, depurado: se queda lo que te hace mejor conversador y se quita lo que funciona a costa de la otra persona.</p>
+
+  <div class="grid2">
+    <div class="kpi"><b>13</b><span class="small muted">pasos de Mystery, condensados aquí en 7 fases</span></div>
+    <div class="kpi"><b>3</b><span class="small muted">señales de interés antes de escalar</span></div>
+    <div class="kpi"><b>3 s</b><span class="small muted">para decidir acercarte</span></div>
+    <div class="kpi"><b>~7 h</b><span class="small muted">de confianza acumulada antes de algo íntimo</span></div>
+  </div>
+
+  <details open><summary>La estructura: EAAC → 7 fases</summary><div class="in">
+    <p>Mystery empezó con <b>Encuentra · Aborda · Atrae · Cierra</b>. Style lo afinó en: apertura → demostración de valor → entendimiento → vínculo emocional → conexión física. En la app queda así:</p>
+    <ol id="phaseListMethod"></ol>
+  </div></details>
+
+  <details><summary>Lo que sí vale la pena del libro</summary><div class="in">
+    <ul>
+      <li><b>Sonreír al entrar.</b> El primer “rasgo alfa” de la lista de Mystery, y el más fácil.</li>
+      <li><b>Abrir con algo casual</b>, sin presión: una opinión, una observación. La gente baja la guardia cuando no siente que la están “cazando”.</li>
+      <li><b>Hablarle al grupo, no solo a una persona.</b> Si caes bien a sus amigos, todo fluye.</li>
+      <li><b>Límite de tiempo.</b> “Solo un minuto, me esperan mis amigos.” Le quita a la otra persona el miedo a que te pegues toda la noche.</li>
+      <li><b>Afirmaciones, no interrogatorios</b> (Juggler). “Este vídeo me da paz” abre más que “¿de dónde eres?”.</li>
+      <li><b>Mostrar lo que sabes hacer</b>: una historia, un juego, un truco. Que vean quién eres en vez de contarlo.</li>
+      <li><b>Leer señales de interés</b> y no avanzar sin ellas.</li>
+      <li><b>Cambiar de sitio</b> (cita inmediata): ir del bar a un café crea sensación de conoceros más.</li>
+      <li><b>Cuidar postura, voz y ropa.</b> Style fue a clases de voz, de postura y de baile. Lo notó.</li>
+      <li><b>Analizar después</b>, sin castigarte: ¿qué ajustarías la próxima vez?</li>
+    </ul>
+  </div></details>
+
+  <details><summary>Lo que dejé fuera, y por qué</summary><div class="in">
+    <div class="stop"><b>“Negas”</b> (insultos disfrazados para bajarle la autoestima). Los reemplacé por <b>bromas</b> que no tocan inseguridades: te ríes <i>con</i> ella, no <i>de</i> ella.</div>
+    <div class="stop"><b>Vencer la “resistencia de última hora”</b>, crear hielo para que ceda, masajes como pretexto. Si dice que no o duda, se para. Punto.</div>
+    <div class="stop"><b>Hipnosis/anclajes de PNL</b> para provocar deseo y <b>mentiras</b> (“si no fuera gay…”, falsas historias). Funcionan engañando; no van aquí.</div>
+    <p class="small muted">El propio libro termina mostrando el costo: Mystery hundido, Proyecto Hollywood destruido, y Style concluyendo que lo único que importaba ya lo tenía antes de las técnicas.</p>
+  </div></details>
+
+  <details><summary>Los 7 errores que el libro retrata</summary><div class="in">
+    <ol>
+      <li><b>Convertirte en robot social:</b> solo hablas de técnicas y las personas se vuelven números.</li>
+      <li><b>Abandonar el resto de tu vida</b> (trabajo, estudios, amigos). Lo que más atrae es tener una vida propia.</li>
+      <li><b>Monoítis:</b> obsesionarte con una persona antes de conocerla.</li>
+      <li><b>Perseguir como cachorro</b> cuando la otra persona se aleja (el error de Style con Elonova). Dale espacio.</li>
+      <li><b>Hablar de tus logros</b> (Papa con su padre rico). La valía se muestra, no se anuncia.</li>
+      <li><b>Copiar frases sin ser tú.</b> Las técnicas son ruedines; la meta es no necesitarlas.</li>
+      <li><b>Confundir validación con conexión.</b> Style lo nota con Lisa: lo que lo cambió fue lo que no podía controlar.</li>
+    </ol>
+  </div></details>
+
+  <details><summary>Consentimiento, sin rodeos</summary><div class="in">
+    <ul>
+      <li>Tocar solo después de señales claras, empezando por lo leve (brazo, hombro) y viendo si lo devuelve.</li>
+      <li>Para preguntar por un beso basta: <i>“¿Te puedo besar?”</i> Si dice sí, bien. Si duda o dice no, <i>“Tranquila”</i> y sigues hablando de otra cosa, sin insistir.</li>
+      <li>Alcohol de por medio: si está bebida, no hay nada que avanzar esa noche.</li>
+      <li>Cualquier freno vale igual al principio que al final.</li>
+    </ul>
+  </div></details>
+</section>
+
+</main>
+
+<nav class="tabs"><div class="wrap">
+  <button class="on" data-v="frases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Inicio</button>
+  <button data-v="ahora"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Fases</button>
+  <button data-v="esc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg>Escenarios</button>
+  <button data-v="rescate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="3"/></svg>Rescate</button>
+  <button data-v="metodo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/></svg>Método</button>
+</div></nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- utilidades ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('hilo_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('hilo_'+k,JSON.stringify(v))}catch(e){}}};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('on'),1400)}
+function copy(t){try{navigator.clipboard.writeText(t).then(()=>toast('Copiado'),()=>toast('No se pudo copiar'))}catch(e){toast('No se pudo copiar')}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- tema ---------- */
+(function(){const t=store.get('theme',null);if(t)document.documentElement.setAttribute('data-theme',t);
+$('#themeBtn').onclick=()=>{const cur=document.documentElement.getAttribute('data-theme');const dark=cur?cur==='dark':matchMedia('(prefers-color-scheme: dark)').matches;const n=dark?'light':'dark';document.documentElement.setAttribute('data-theme',n);store.set('theme',n)}})();
+
+/* ---------- FASES ---------- */
+const PHASES=[
+ {n:'Entrar',short:'Sonrisa y decisión',goal:'Llegas, sonríes, eliges con quién hablar y te acercas antes de pensarlo demasiado.',
+  say:[
+   ['(Para ti) “No voy a ligar, voy a conversar con alguien interesante.”','Quita presión. Es lo que Mystery llama ver la noche como un videojuego: nada es tan grave.'],
+   ['(Para ti) “Tres, dos, uno: voy.”','Regla de los 3 segundos. Si esperas, tu cabeza inventa excusas.'],
+   ['(Para ti) “Me acerco de frente, con un poco de ángulo, no por la espalda.”','Consejo de Sin: por la espalda asustas. De frente y ladeado, como si fueras de paso.']],
+  next:['Ya estás a un metro y medio, de frente, con una sonrisa.','Tienes una frase de apertura lista (mira la siguiente fase).'],
+  err:'Error típico: quedarte observando desde lejos. Cuanto más miras sin acercarte, más raro te ve la otra persona.'},
+ {n:'Abrir',short:'Primer contacto',goal:'Una frase casual que invite a opinar. Hablas al grupo, no solo a quien te gusta.',
+  say:[
+   ['“Oye, una pregunta rápida para una opinión femenina…”','Abre casi cualquier grupo. Luego lanzas el dilema.'],
+   ['“Un amigo tiene un dilema: su novia no quiere que hable con su ex de la universidad. ¿Ella exagera o él debería cortar contacto?”','Versión honesta de la “novia celosa” de Style: todo el mundo tiene opinión.'],
+   ['“Tengo un debate con mi amigo y necesitamos jurado: ¿quién miente más, hombres o mujeres?”','Genera discusión entre ellas, no un interrogatorio a una.'],
+   ['“¿Qué tal estás? … Yo me daría un 8 hoy.”','La apertura de Juggler: banal a propósito. Lo que importa es lo que viene después.'],
+   ['“Solo un minuto, que me esperan mis amigos: ¿qué lugar de por aquí recomiendan?”','Incluye el límite de tiempo. Útil si estás de viaje.']],
+  next:['Te responden con algo más que un monosílabo.','Alguien del grupo te devuelve una pregunta.','Se giran un poco hacia ti.'],
+  err:'Error típico: acercarte con algo sexual o un piropo directo al físico. El libro: primero conocer, después que surja el interés.'},
+ {n:'Enganchar',short:'Que quieran que te quedes',goal:'Pasas de “desconocido que pregunta” a “alguien entretenido”. Ríete, comenta, juega con las respuestas.',
+  say:[
+   ['“A ver, ¿cuánto tiempo hace que se conocen? … Lo sabía.”','Interés genuino por el grupo y la puerta al test de las mejores amigas.'],
+   ['“Tú tienes cara de ser la que organiza todo en el grupo.”','Lectura en frío ligera: una observación con humor. Si fallas, ríete y pide que te corrijan.'],
+   ['“Ok, ella es la responsable y tú la que mete al grupo en líos, ¿no?”','Asignar papeles divierte y hace que el grupo te incluya.'],
+   ['“Me tengo que ir en un minuto… pero tienen que resolver esto primero.”','Sigues con límite de tiempo. Paradójicamente, es cuando más quieren que te quedes.']],
+  next:['Ya no buscan terminar la conversación.','Te preguntan algo personal (cómo te llamas, a qué te dedicas).','Alguien dice “quédate”.'],
+  err:'Error típico: quedarte quieto e inclinado hacia ellas. Postura recta, peso en el pie de atrás, como si te fueras a ir.'},
+ {n:'Mostrar valor',short:'Que vean quién eres',goal:'Demuestras algo que te hace distinto: una historia, una habilidad, un juego. No lo anuncias, lo haces.',
+  say:[
+   ['“Te hago el test de las mejores amigas: ¿usan el mismo champú? … No importa la respuesta: se miraron antes de contestar. Eso es confianza.”','La rutina de Style. Divierte y halaga a las dos.'],
+   ['“Piensa un número del 1 al 10. No lo pienses mucho… ¿el 7?”','Casi siempre es 7. Si falla, ríete: “Mi poder es muy inestable.”'],
+   ['“Imagina un desierto y un cubo. ¿Qué tamaño tiene? ¿De qué color? Ahora una escalera… y un caballo.”','El juego del cubo (está completo en Frases). Que lo lea como juego, no como verdad científica.'],
+   ['“Te cuento lo más absurdo que me pasó esta semana…”','Una historia tuya, corta y con final. Mejor que cualquier truco.'],
+   ['“Tú sabes algo raro que poca gente sabe hacer, se te nota. ¿Qué es?”','Le das el turno de mostrar valor a ella. Escucha de verdad.']],
+  next:['Se ríe sola, no por cortesía.','Pide “otro” juego o historia.','Te toca el brazo o se acerca para oír mejor.'],
+  err:'Error típico: hablar de dinero, logros o contactos. Papa lo hizo en el libro y le cortaron en seco.'},
+ {n:'Conectar',short:'Pasar a lo personal',goal:'Aíslas un poco a la persona (con su permiso), bajas el ritmo y hablas de lo que de verdad importa.',
+  say:[
+   ['“Te quiero enseñar algo, ¿vamos ahí que se oye mejor?”','Aislar, versión amable. Si sus amigas parecen incómodas, quédate con el grupo.'],
+   ['“La belleza es común. Lo raro es alguien con su propia forma de ver la vida. ¿Qué tienes tú que no se ve a primera vista?”','Paso 11 de Mystery. Si se abre, escúchala sin preparar tu siguiente frase.'],
+   ['“¿Qué es lo que más te ha gustado hacer este año?”','Cambia de “qué haces” a “qué te importa”.'],
+   ['“Te imagino a los 14 años… apuesto a que no eras la más popular, ¿o sí?”','Del libro (con Heather). Úsalo solo si hay buena onda; es íntimo.'],
+   ['(Silencio de 3 segundos, mirándola a los ojos)','Si te sostiene la mirada, hay conexión. Si la aparta, vuelve a lo ligero.']],
+  next:['Te cuenta algo que no le contaría a cualquiera.','Ella reanuda la conversación después de un silencio (“entonces…”).','Contacto visual largo y relajado.'],
+  err:'Error típico: volver a los trucos cuando ya hay conexión. En esta fase, menos técnica y más escucha.'},
+ {n:'Contacto',short:'Escalar con calma',goal:'Si hay señales claras, contacto físico ligero y observa la respuesta. Ella marca el ritmo.',
+  say:[
+   ['(Tocar el antebrazo al reír)','Primer contacto. ¿Se aparta o se queda? Si se aparta, no insistas.'],
+   ['“Dame la mano, que te enseño algo.”','Si aprieta tu mano, es una señal. Si la suelta, sigue charlando sin más.'],
+   ['“Hueles bien, ¿qué perfume es?”','Directo pero suave; habla de lo que percibes, no de su cuerpo.'],
+   ['“¿Te puedo besar?”','Mystery recomendaba preguntar. Sí → beso. Duda o no → “Tranquila” y sigues hablando de otra cosa.']],
+  next:['Ella devuelve el contacto o se acerca más.','Te dice que sí sin dudar.'],
+  err:'Error típico: confundir amabilidad con permiso. Señales mixtas = no avances. Si dice no, no hay “segundo intento”.'},
+ {n:'Siguiente paso',short:'Número o plan',goal:'Cierras con algo concreto: número, un plan para otro día, o seguir la noche en otro sitio si ambos quieren.',
+  say:[
+   ['“Me tengo que ir, pero esto hay que continuarlo. ¿Cómo hacemos?”','Rutina del número de Mystery: dejas que sea ella quien proponga darte su contacto.'],
+   ['“¿Te parece si tomamos un café esta semana? El jueves conozco un sitio bueno.”','Plan concreto > “a ver si un día”.'],
+   ['“¿Vamos por algo de comer aquí al lado con tus amigas?”','Cita inmediata. Cambiar de sitio con el grupo hace que la conexión crezca.'],
+   ['“Mándame un mensaje para que tengas el mío.”','Asegura que el número es real sin sonar desconfiado.']],
+  next:['Tienes su contacto o un plan.','Se despide con buena energía.'],
+  err:'Error típico: alargar hasta que la conversación muere. Mejor irse en un buen momento y con ganas de más.'}
+];
+
+let phase=store.get('phase',0), sayIdx=0;
+function renderPhase(){
+  const p=PHASES[phase];
+  $('#phaseBar').innerHTML=PHASES.map((x,i)=>`<button aria-label="${esc(x.n)}" class="${i<phase?'done':i===phase?'on':''}" data-p="${i}"></button>`).join('');
+  $$('#phaseBar button').forEach(b=>b.onclick=()=>{phase=+b.dataset.p;sayIdx=0;store.set('phase',phase);renderPhase()});
+  $('#phaseNum').textContent=`Fase ${phase+1} de ${PHASES.length}`;
+  $('#phaseGoalShort').textContent=p.short;
+  $('#phaseName').textContent=p.n;
+  $('#phaseGoal').textContent=p.goal;
+  const s=p.say[sayIdx%p.say.length];
+  $('#phaseSay').innerHTML=`<div class="say">${esc(s[0])}<small>${esc(s[1])}</small></div>`;
+  $('#phaseNext').innerHTML=p.next.map(x=>`<li>${esc(x)}</li>`).join('');
+  $('#phaseError').textContent=p.err;
+  $('#prevPhase').disabled=phase===0;
+  $('#nextPhase').textContent=phase===PHASES.length-1?'Reiniciar ↺':'Siguiente fase →';
+}
+$('#moreSay').onclick=()=>{sayIdx++;renderPhase()};
+$('#nextPhase').onclick=()=>{phase=phase===PHASES.length-1?0:phase+1;sayIdx=0;store.set('phase',phase);renderPhase();scrollTo({top:0,behavior:'smooth'})};
+$('#prevPhase').onclick=()=>{if(phase>0){phase--;sayIdx=0;store.set('phase',phase);renderPhase()}};
+$('#phaseListMethod').innerHTML=PHASES.map(p=>`<li><b>${esc(p.n)}:</b> ${esc(p.goal)}</li>`).join('');
+
+/* ---------- IOI ---------- */
+const IOI=['Te pregunta tu nombre','Te pregunta a qué te dedicas','Pregunta si tienes pareja','Se ríe aunque no sea tan gracioso','Se inclina hacia ti','Te toca el brazo','Aprieta tu mano','Te sostiene la mirada','Juega con su pelo mirándote','Retoma la charla tras un silencio','Se aleja de sus amigas para hablarte','Te presenta a sus amigos','Te pide otro juego/historia','Te deja una pregunta abierta para seguir','Se queda cerca sin razón (alerta de proximidad)','Te menciona un plan a futuro'];
+let ioiOn=store.get('ioi',[]);
+function renderIOI(){
+  $('#ioiGrid').innerHTML=IOI.map((t,i)=>`<button class="btn ${ioiOn.includes(i)?'on':''}" data-i="${i}">${esc(t)}</button>`).join('');
+  $$('#ioiGrid button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;ioiOn=ioiOn.includes(i)?ioiOn.filter(x=>x!==i):[...ioiOn,i];store.set('ioi',ioiOn);renderIOI()});
+  const n=ioiOn.length;$('#ioiCount').textContent=n+' señal'+(n===1?'':'es');
+  $('#ioiMeter').style.width=Math.min(100,n/3*100)+'%';
+  $('#ioiHint').textContent=n>=3?'Hay interés claro. Puedes subir un nivel (más personal o un plan concreto).':n>0?'Vas bien. Sigue disfrutando la charla; no fuerces.':'Toca las señales que notes. Con 3 claras, puedes subir un nivel.';
+}
+$('#ioiReset').onclick=()=>{ioiOn=[];store.set('ioi',ioiOn);renderIOI();$('#coldBox').innerHTML=''};
+$('#coldBtn').onclick=()=>{$('#coldBox').innerHTML=`<div class="stop"><b>Si ves esto, frena o despídete:</b><ul class="small"><li>Respuestas de una palabra, mira el celular o a su alrededor.</li><li>Cuerpo girado hacia otro lado, brazos cruzados con tensión.</li><li>Se aparta cuando te acercas o cuando la tocas.</li><li>Sus amigas la “rescatan”.</li><li>Dice que tiene pareja o que no le interesa.</li></ul><div class="say">“Bueno, las dejo. ¡Que la pasen bien!”<small>Salida limpia. Tu reputación en el lugar también importa.</small></div></div>`};
+
+/* ---------- me quedé en blanco ---------- */
+const BLANK=[
+ ['Comenta lo que acaba de pasar','“Espera, ¿eso fue lo que creo que fue?”'],
+ ['Retoma algo que dijo','“Volvamos a eso de que viviste en ___. ¿Cómo terminaste ahí?”'],
+ ['Haz una afirmación, no una pregunta','“Tú tienes pinta de ser buena eligiendo lugares para comer.”'],
+ ['Admítelo con humor','“Me quedé en blanco. Dame un tema, yo pongo la opinión.”'],
+ ['Lanza un juego','“Juego rápido: tres cosas que no harías nunca, y yo adivino cuál es mentira.”'],
+ ['Cuenta algo breve tuyo','“Hoy me pasó algo ridículo…” (30 segundos máximo)'],
+ ['Pregunta por una preferencia','“¿Playa o montaña? Y no vale decir las dos.”'],
+ ['Imaginen algo juntos','“Si mañana tuvieras un día libre y nada de dinero en el banco, ¿qué harías?”'],
+ ['Usa el entorno','“Esta canción… ¿te gusta o la estás soportando?”'],
+ ['Lanza una apuesta gana-gana','“Si adivino en qué trabajas, me debes una copa. Si fallo, la pago yo.”'],
+ ['Reto rápido','“Te apuesto a que no aguantas 10 segundos sin sonreír.”'],
+ ['Deja el silencio','Sonríe y aguanta 3 segundos. A veces ella llena el espacio, y eso es una señal.']
+];
+$('#blankBtn').onclick=()=>{const b=pick(BLANK);$('#blankOut').innerHTML=`<div class="card"><b>${esc(b[0])}</b><div class="say">${esc(b[1])}</div><button class="btn block" onclick="document.getElementById('blankBtn').click()">Otra idea ↻</button></div>`};
+
+/* ---------- BANCO DE FRASES ---------- */
+const CATS={ab:'Entradas',tem:'Temas de conversación',prof:'Preguntas profundas',coq:'Coqueteo (por niveles)',juego:'Juegos',apu:'Apuestas',val:'Mostrar valor',bro:'Bromas',sit:'Situacional',dia:'De día',eng:'Enganchar',con:'Conectar',cont:'Contacto',num:'Número y plan',msg:'Mensajes',sal:'Salidas',resp:'Respuestas a pruebas'};
+const L=[
+ ['ab','“Una pregunta rápida para una opinión femenina…”','Comodín. Luego cualquier dilema.'],
+ ['ab','“Mi amigo tiene un lío: su novia no quiere que hable con su ex de la universidad. ¿Quién tiene razón?”','La de Style. Genera debate.'],
+ ['ab','“¿Quién miente más, hombres o mujeres? Estamos en un debate.”','Funciona con grupos mixtos.'],
+ ['ab','“Mi vecina se compró dos perros y quiere ponerles nombres de un dúo famoso. ¿Ideas?”','La de los perros de Style. Inocente y divertida.'],
+ ['ab','“¿Crees en la magia? Te lo pregunto en serio.”','La clásica de Mystery. Mejor si tienes un truco preparado.'],
+ ['ab','“Te vi y pensé: si no hablo con ella me voy a arrepentir. Así que hola.”','Directo y honesto. Exige buena energía.'],
+ ['ab','“Solo un minuto, que me esperan mis amigos: necesito un voto de desempate.”','Apertura con límite de tiempo incorporado.'],
+ ['tem','“¿Qué es lo que más te ha gustado hacer este año?”','Abre a experiencias, no a datos.'],
+ ['tem','“Si mañana pudieras vivir en cualquier ciudad, ¿cuál y por qué?”','Viajes y sueños: da para largo.'],
+ ['tem','“¿Cuál es la comida que te pone de buen humor sí o sí?”','Fácil, cotidiano, y suele terminar en una recomendación para ir juntos.'],
+ ['tem','“¿Qué serie o película has visto más de una vez?”','Gustos compartidos; si coinciden, ya tienen plan.'],
+ ['tem','“¿Qué hacías de niña que ahora te daría vergüenza contar?”','Divertido e íntimo a la vez. Cuenta tú una primero.'],
+ ['tem','“¿Cuál fue el último viaje que hiciste y qué fue lo mejor?”','Escucha los detalles y pregunta por uno.'],
+ ['tem','“¿Qué canción te pone de buen humor siempre?”','Si hay música cerca, la buscan juntos.'],
+ ['tem','“Si tuvieras un año libre con todo pagado, ¿qué harías?”','Revela lo que de verdad le motiva.'],
+ ['tem','“¿Eres más de planear todo o de improvisar?”','Da pie a historias de planes que salieron mal.'],
+ ['tem','“¿Qué es lo más espontáneo que has hecho?”','Historias buenas casi garantizadas.'],
+ ['tem','“¿Tienes algún talento raro o inútil?”','Ríanse; muestra el tuyo a cambio.'],
+ ['tem','“¿Qué te hace perder la noción del tiempo?”','Lleva a sus pasiones.'],
+ ['tem','“¿Playa o montaña? ¿Café o té? ¿Madrugar o trasnochar?”','Ronda rápida cuando el ritmo baja.'],
+ ['tem','“¿Cuál es el mejor consejo que te han dado?”','Conversación con fondo sin ponerse pesado.'],
+ ['tem','“¿Qué es algo que te gustaría aprender este año?”','Futuro y planes; quizá algo que podrían hacer juntos.'],
+ ['tem','“¿Cómo es un domingo perfecto para ti?”','Te dice mucho de cómo vive.'],
+ ['tem','“¿Qué es lo más raro que has comido?”','Anécdotas y risas.'],
+ ['tem','“¿Tienes alguna mascota o te gustaría tener una?”','Tema cálido; fotos en el celular incluidas.'],
+ ['tem','“¿Qué trabajo tendrías si el dinero no importara?”','Vocación y sueños.'],
+ ['tem','“¿Cuál es tu lugar favorito en esta ciudad que nadie conoce?”','Muy útil para proponer el siguiente plan.'],
+ ['tem','“¿Qué te dicen siempre tus amigos que tienes que cambiar?”','Humor y autoconocimiento; responde tú también.'],
+ ['tem','“¿Qué es algo que todo el mundo ama y a ti no te gusta?”','Opiniones polémicas suaves: generan debate divertido.'],
+['prof','“¿Cuál es tu pasión más grande en la vida?”','Tocas lo que más la motiva. Hablar de sueños y pasiones genera entusiasmo.'],
+ ['prof','“¿Qué es lo que más te hace reír?”','El humor conecta; descubrir qué la hace feliz te acerca a su mundo.'],
+ ['prof','“¿Cuál es el recuerdo más feliz de tu vida?”','La lleva a un momento especial y muestra su lado emocional.'],
+ ['prof','“¿Qué es lo que buscas en una relación?”','Interés en sus valores y expectativas. Mejor cuando ya hay confianza.'],
+ ['prof','“¿Qué habilidad siempre has querido aprender pero nunca te has atrevido?”','Despierta curiosidad sobre sus metas y retos.'],
+ ['prof','“¿Qué canción o película describe tu personalidad?”','Divertida; da pie a risas y a compartir gustos.'],
+ ['prof','“¿Qué persona en tu vida te inspira más y por qué?”','Conoces sus valores y a quién admira.'],
+ ['prof','“Si pudieras revivir un momento de tu vida, ¿cuál sería y por qué?”','La hace reflexionar sobre lo que marcó su historia.'],
+ ['prof','“¿Qué te hace sentir realmente orgullosa de ti?”','Le das espacio para hablar de sus logros sin sonar a entrevista.'],
+ ['prof','“¿Qué sueño tenías de niña que todavía te gustaría cumplir?”','Mezcla nostalgia y futuro.'],
+ ['prof','“¿Qué es lo más valiente que has hecho?”','Salen historias con emoción; escucha los detalles.'],
+ ['prof','“¿Qué cosa pequeña te alegra el día sin falta?”','Ligera pero personal. Buena para bajar la intensidad.'],
+ ['prof','“¿Cómo te describirían tus mejores amigos en tres palabras?”','Ves cómo se percibe y qué valora de sus amistades.'],
+ ['prof','“¿Qué lugar del mundo sientes que te falta conocer?”','Viajes y deseos; puede salir un plan.'],
+ ['prof','“¿Qué aprendiste tarde en la vida que te hubiera gustado saber antes?”','Profunda sin ser pesada.'],
+ ['prof','“¿Qué es lo que más valoras en una amistad?”','Valores, sin la presión de hablar de pareja.'],
+ ['prof','“¿Cuál ha sido el mejor día de tu último año?”','Versión reciente del recuerdo feliz; más fácil de responder.'],
+ ['prof','“¿Hay algo que hayas cambiado de opinión con los años?”','Muestra cómo piensa y cómo ha crecido.'],
+ ['prof','“¿Qué harías si supieras que no puedes fallar?”','Revela ambiciones escondidas.'],
+ ['prof','“¿Qué tradición familiar te gustaría mantener siempre?”','Cálida; habla de sus raíces y su familia.'],
+ ['prof','“¿Qué es algo que la gente suele malinterpretar de ti?”','Íntima. Solo con buena conexión; escucha sin juzgar.'],
+ ['prof','“¿Qué te gustaría que dijeran de ti dentro de 10 años?”','Futuro, identidad y propósito.'],
+ ['prof','“¿Cuál es el mejor regalo que has recibido, sin contar dinero?”','Habla de afecto y detalles; te dice qué aprecia.'],
+ ['prof','“¿Qué te relaja de verdad después de un día malo?”','Práctica y personal; da ideas para planes tranquilos.'],
+['coq','Antes de usar estas preguntas','Úsalas solo con 3 o más señales de interés y sube de nivel poco a poco. Si ella cambia de tema o responde corto, vuelve a lo ligero sin insistir.'],
+ ['coq','“¿Qué es lo primero que te atrae de alguien?”','Nivel 1 · ya hay confianza y coqueteo. Suave y abierta; responde tú también.'],
+ ['coq','“¿Qué hace que alguien te parezca irresistible?”','Nivel 1 · ya hay confianza y coqueteo. Escucha: te dice qué valora.'],
+ ['coq','“¿Eres de las que coquetean o de las que esperan que coqueteen contigo?”','Nivel 1 · ya hay confianza y coqueteo. Juguetona; da pie a bromas.'],
+ ['coq','“¿Qué tipo de mirada te pone nerviosa?”','Nivel 1 · ya hay confianza y coqueteo. Crea tensión con la mirada sin tocar.'],
+ ['coq','“¿Qué detalle hace que empieces a ver diferente a alguien?”','Nivel 1 · ya hay confianza y coqueteo. Habla de detalles que ella aprecia.'],
+ ['coq','“¿Qué te gusta más: que te hagan reír o que te sorprendan?”','Nivel 1 · ya hay confianza y coqueteo. Similar. Fácil de responder.'],
+ ['coq','“¿Qué es lo más bonito que alguien ha hecho para conquistarte?”','Nivel 1 · ya hay confianza y coqueteo. Similar. Salen historias tiernas.'],
+ ['coq','“¿Qué te parece más atractivo: seguridad o misterio?”','Nivel 2 · hay complicidad. Elección doble, fácil y reveladora.'],
+ ['coq','“¿Alguna vez alguien te gustó cuando no debía gustarte?”','Nivel 2 · hay complicidad. Historias con chispa; no juzgues.'],
+ ['coq','“¿Qué crea más tensión para ti: una mirada o una conversación?”','Nivel 2 · hay complicidad. Conecta con lo que están viviendo.'],
+ ['coq','“¿Te han dado ganas de besar a alguien y no lo hiciste?”','Nivel 2 · hay complicidad. Atrevida pero indirecta.'],
+ ['coq','“¿Qué hace que un beso sea difícil de olvidar?”','Nivel 2 · hay complicidad. Romántica; deja hablar.'],
+ ['coq','“¿Primera cita: algo tranquilo o algo con adrenalina?”','Nivel 2 · hay complicidad. Similar. Te da ideas para el siguiente plan.'],
+ ['coq','“¿Qué es lo más romántico que te parece cursi pero igual te gusta?”','Nivel 2 · hay complicidad. Similar. Divertida y honesta.'],
+ ['coq','“¿Qué situación te parece sorprendentemente sexy?”','Nivel 3 · ambos cómodos hablando de atracción. Sube el tono; mira su reacción.'],
+ ['coq','“¿Qué puede hacer alguien sin tocarte y aun así ponerte nerviosa?”','Nivel 3 · ambos cómodos hablando de atracción. Tensión sin contacto.'],
+ ['coq','“¿Qué te atrae que normalmente no admitirías de primeras?”','Nivel 3 · ambos cómodos hablando de atracción. Confesión ligera; comparte tú algo también.'],
+ ['coq','“¿Prefieres que alguien sea directo o que aumente la tensión poco a poco?”','Nivel 3 · ambos cómodos hablando de atracción. Además te dice cómo quiere que avances. Hazle caso.'],
+ ['coq','“¿Qué momento de una cita te parece más emocionante?”','Nivel 3 · ambos cómodos hablando de atracción. Te da pistas del ritmo que le gusta.'],
+ ['coq','“¿Qué voz o acento te parece más atractivo?”','Nivel 3 · ambos cómodos hablando de atracción. Similar. Juguetona.'],
+ ['coq','“¿Qué te pone más nerviosa: un mensaje inesperado o una mirada larga?”','Nivel 3 · ambos cómodos hablando de atracción. Similar. Tensión en pequeño.'],
+ ['coq','“¿Qué te parece más íntimo que un beso?”','Nivel 4 · hay química clara. Conversación cercana; escucha.'],
+ ['coq','“¿Alguna vez una conversación cambió por completo cómo veías a alguien?”','Nivel 4 · hay química clara. Puede hablar de ustedes sin decirlo.'],
+ ['coq','“¿Qué tipo de química es imposible fingir?”','Nivel 4 · hay química clara. Reconoce lo que está pasando entre ustedes.'],
+ ['coq','“¿Qué pregunta esperabas que te hiciera y todavía no te hice?”','Nivel 4 · hay química clara. Le das el control del siguiente tema.'],
+ ['coq','“¿Qué es lo que más te ha gustado de esta noche hasta ahora?”','Nivel 4 · hay química clara. Similar. Lee cómo se siente; buen momento para proponer el siguiente paso.'],
+ ['coq','“Si esto fuera una película, ¿qué escena vendría ahora?”','Nivel 4 · hay química clara. Similar. Juego directo; su respuesta te dice qué quiere. Si duda, ríete y sigue.'],
+ ['coq','“¿Te puedo besar?”','Nivel 4 · hay química clara. Cuando la química es clara, pregunta. Sí → adelante. Duda o no → “Tranquila” y otro tema.'],
+ ['sit','“Este lugar tiene la peor y la mejor música a la vez. ¿Cuál fue la peor canción hasta ahora?”','Bar o discoteca.'],
+ ['sit','“¿Eso que pediste está bueno o me arrepiento si lo pido?”','Restaurantes, cafés, juguerías.'],
+ ['sit','“¿Cuál está mejor, el huracán o la brisa? … Perfecto, me pido la brisa.”','La broma de Tyler en el Juicemaster: pedir consejo y hacer lo contrario.'],
+ ['sit','“Me ayudas: ¿regalo un libro o una experiencia para un cumpleaños?”','Tiendas, librerías.'],
+ ['sit','“Tienes cara de saber dónde se come bien por aquí.”','Si estás de viaje o en zona nueva.'],
+ ['dia','“Perdona, ¿me ayudas a resolver un debate interior que me está torturando?”','Style en la papelería, la que le valió el número de una Playmate.'],
+ ['dia','“Estoy estudiando análisis de caligrafía. ¿Puedo practicar con tu letra mientras llega mi pedido?”','Del libro. Úsalo solo si de verdad te interesa el tema.'],
+ ['dia','“Esta mañana he visto lo más absurdo…”','En una fila, una historia corta abre más que una pregunta.'],
+ ['eng','“¿Y ustedes de qué se conocen?”','Pieza clave: entiendes el grupo y si hay pareja.'],
+ ['eng','“A ver si adivino: tú eres la responsable del grupo y tú la que los mete en líos.”','Asignar papeles.'],
+ ['eng','“No me lo digas… ¿trabajas en algo creativo?”','Lectura en frío ligera.'],
+ ['eng','“Me caen bien. Tengo que irme en un minuto, pero esto hay que resolverlo.”','Límite de tiempo que engancha.'],
+ ['val','“Ustedes dos se miraron antes de contestar. Eso solo pasa con mejores amigas.”','Test de las mejores amigas.'],
+ ['val','“Hay una teoría de que la gente que mira abajo a la izquierda al pensar es muy de sentir más que de pensar.”','La de los movimientos de ojos con Britney. Preséntalo como curiosidad, no ciencia.'],
+ ['val','“Te cuento algo que me pasó en un viaje…”','Una historia propia vale más que cualquier truco.'],
+ ['val','“¿Sabes hacer algo que poca gente sabe? Yo te enseño uno a cambio.”','Intercambio de habilidades.'],
+ ['juego','El cubo: “Imagina un desierto con un cubo. ¿Tamaño? ¿Color? ¿Transparente? Ahora una escalera: ¿dónde? Un caballo: ¿dónde?”','Lectura: cubo = cómo te ves; tamaño = confianza; color = ánimo; transparente = abierta; escalera = amigos; caballo = pareja ideal.'],
+ ['juego','“Piensa un número del 1 al 10… sin pensarlo. ¿El 7?”','Casi siempre acierta.'],
+ ['juego','“Dime 3 cosas de ti: dos verdad y una mentira. Yo adivino.”','Te obliga a escuchar.'],
+ ['juego','“Te huelo las dos muñecas: ¿cuál colonia te gusta más?”','La de la colonia: llevas dos distintas.'],
+ ['juego','“Foto sonriendo, foto seria, foto loca.”','Versión sin beso de la técnica de la cámara. Si ella propone otra, adelante.'],
+ ['juego','“Dibujaré tu retrato… Listo: ‘Chica interesante en un café, 2026’.”','El “mal dibujante” de Ross Jeffries. Pura risa.'],
+ ['bro','“¿Me estás coqueteando? Porque así no se trata a alguien que acabas de conocer.”','Chulo-gracioso de DeAngelo, en juego evidente.'],
+ ['bro','“Uy, se mira pero no se toca.” (cuando te toca el sombrero/ropa)','Del libro, Style con Elonova.'],
+ ['bro','“Ok, me caes bien. Pero no se lo digas a nadie, tengo una reputación.”','Broma de estatus sin humillar.'],
+ ['bro','“Eres como mi hermana pequeña: insoportable pero adorable.”','Úsala solo con buena confianza.'],
+ ['bro','“Vale, ganas tú esta. Pero llevo la cuenta: 1–0.”','Convierte la charla en un juego.'],
+ ['con','“¿Qué es lo que más te ha gustado hacer este año?”','Del dato a lo que importa.'],
+ ['con','“La belleza es común; lo raro es alguien con su propia visión. ¿Qué escondes que no se ve?”','Paso 11 de Mystery.'],
+ ['con','“¿Qué te hace perder la noción del tiempo?”','Pasión → conversación larga.'],
+ ['con','“¿Qué le dirías a tu yo de hace 5 años?”','Íntimo. Solo con conexión previa.'],
+ ['con','“Cuéntame algo que te haya cambiado la forma de pensar.”','Escucha. No compitas con tu historia.'],
+ ['cont','“Dame la mano, que te enseño algo.”','Contacto con excusa clara.'],
+ ['cont','(Tocar su antebrazo al reír)','Observa si lo devuelve.'],
+ ['cont','“¿Bailamos?”','Lo más natural en una discoteca.'],
+ ['cont','“¿Te puedo besar?”','Pregunta directa. Duda o no = no.'],
+ ['apu','Principio “gana-gana”: plantea apuestas donde cualquier resultado termine en algo juntos (una copa, un café, un baile).','Si ganas, te invita; si pierdes, invitas tú. En ambos casos hay una segunda cita. Que el premio sea pequeño y que suene a juego.'],
+ ['apu','“Si adivino en qué trabajas, me debes una copa. Si fallo, la pago yo.”','Haz 2–3 intentos con lectura en frío (manos, ropa, cómo habla). Si aciertas o fallas, hay copa juntos.'],
+ ['apu','“Te apuesto un almuerzo a que te doy un beso sin tocar tus labios.” → le besas la mano o la mejilla → “Gané. ¿Cuándo es el almuerzo?”','Versión adaptada de la apuesta del beso. La original (besar los labios y decir “perdí”) es un beso por sorpresa sin permiso: si quieres el beso de verdad, pregúntalo después: “¿Y si pido la revancha?”'],
+ ['apu','“Te apuesto a que te hago reír en 10 segundos. Si no lo logro, te invito el postre.”','Ten preparada tu mejor historia o una cara ridícula. Si se ríe, también ganaste.'],
+ ['apu','“Apuesto a que no aguantas 10 segundos mirándome sin sonreír.”','Juego de miradas: crea tensión divertida y contacto visual.'],
+ ['apu','“Si adivino el número que piensas, yo elijo el próximo lugar. Si fallo, eliges tú.”','Combina con el truco del 7. El premio es un cambio de sitio juntos.'],
+ ['apu','“Piedra, papel o tijera: quien pierda paga el café / elige la canción.”','Simple, rápido, funciona en cualquier lugar.'],
+ ['apu','“Te apuesto a que adivino lo que vas a pedir.”','En bar o restaurante. Si aciertas, presume; si fallas, “me debes contarme por qué elegiste eso”.'],
+ ['apu','“Apuesto a que eres la hermana mayor. Si acierto, me debes un baile.”','Lectura en frío + premio ligero. Si fallas, pregúntale cómo es ser la menor.'],
+ ['apu','“Te apuesto un helado a que no sabes silbar con dos dedos.”','Retos físicos tontos: risas garantizadas, gane quien gane.'],
+ ['apu','“Apuesto a que puedo adivinar tu canción de karaoke.”','Si fallas, tiene que cantarte un pedazo; si aciertas, la cantan juntos.'],
+ ['apu','“Si tu amiga dice que tú eres la más impuntual del grupo, me debes un café.”','Involucra al grupo: le das un papel a la amiga y la haces cómplice.'],
+ ['apu','“Te apuesto a que en 3 preguntas adivino si eres de playa o de montaña.”','Excusa para hacer preguntas personales en forma de juego.'],
+ ['apu','“Te apuesto a que te enseño un truco en un minuto. Si no te sale, el siguiente café lo pago yo.”','Enseñar algo crea contacto y complicidad; el premio es otro encuentro.'],
+ ['apu','Si pierdes, paga sin drama y con humor: “Una apuesta es una apuesta. Elige.”','Cumplir la apuesta con gracia es lo que hace que funcione la próxima vez.'],
+ ['num','“Tengo que irme, pero esto hay que continuarlo. ¿Cómo hacemos?”','Dejas que ella proponga el contacto.'],
+ ['num','“Este jueves voy a un sitio de ___. Vente.”','Plan concreto.'],
+ ['num','“Pásame tu número y te escribo para lo de ___.”','Asocias el número a algo que hablaron.'],
+ ['num','“¿Vamos por algo de comer aquí cerca? Tus amigas también.”','Cita inmediata.'],
+ ['msg','“Hola, soy ___, el del debate de los perros 🐶. ¿Al final qué nombre ganó?”','Primer mensaje: retoma una broma interna.'],
+ ['msg','“¿Sigue en pie lo del café? Jueves 7 en ___, ¿te va?”','Concreto: día, hora, lugar.'],
+ ['msg','“Me acordé de ti viendo ___ 😂”','Mantiene el hilo sin presión.'],
+ ['msg','(Si no responde en 2 mensajes) Deja de escribir.','Nada de cadenas de mensajes sin respuesta.'],
+ ['sal','“Las dejo, ¡que la pasen bien!”','Salida limpia ante cualquier señal de “no”.'],
+ ['sal','“Un placer. Me voy con mis amigos antes de que me abandonen.”','Despedida con humor.'],
+ ['sal','“Tranquila, entendido.”','Cuando dice que no a algo. Sin discutir.'],
+ ['resp','Ella: “¿Esto es una técnica para ligar?” → “Sí, y está saliendo fatal 😂. En serio, me pareciste interesante.”','La honestidad desarma.'],
+ ['resp','Ella: “Eres muy joven/mayor para mí.” → “Bueno, entonces nos tocará ser amigos raros.”','Ni discutas ni te rindas, juega.'],
+ ['resp','Ella: “Seguro dices eso a todas.” → “Solo a las que cuentan bien historias.”','Responde con humor, sin justificarte.'],
+ ['resp','Ella: “Invítame una copa.” → “Cuando me ganes un juego. Te reto.”','No compras atención, la ganas jugando.'],
+ ['resp','Ella: “Yo hago unas mamadas espectaculares.” (o cualquier frase provocadora) → “Es digno de respeto.”','La respuesta a lo Ali G del libro: ni escandalizado ni excitado.']
+];
+let cat='all';
+function renderCats(){
+  $('#cats').innerHTML=[['all','Todas'],...Object.entries(CATS)].map(([k,v])=>`<button class="${k===cat?'on':''}" data-c="${k}">${v}</button>`).join('');
+  $$('#cats button').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderCats();renderLines()});
+}
+function renderLines(){
+  const q=$('#q').value.trim().toLowerCase();
+  const groups={};
+  L.filter(l=>(cat==='all'||l[0]===cat)&&(!q||(l[1]+' '+l[2]+' '+CATS[l[0]]).toLowerCase().includes(q))).forEach(l=>{(groups[l[0]]=groups[l[0]]||[]).push(l)});
+  const keys=Object.keys(groups);
+  $('#lines').innerHTML=keys.length?keys.map(k=>`<div class="card"><h3 style="margin-top:0">${CATS[k]}</h3>${groups[k].map(l=>`<div class="line"><button class="copy" data-t="${esc(l[1])}">copiar</button><div class="t">${esc(l[1])}</div><div class="w">${esc(l[2])}</div></div>`).join('')}</div>`).join(''):'<p class="muted">Nada con ese texto.</p>';
+  $$('#lines .copy').forEach(b=>b.onclick=()=>copy(b.dataset.t));
+}
+$('#q').oninput=renderLines;
+$$('[data-rnd]').forEach(b=>b.onclick=()=>{const cs=b.dataset.rnd.split(',');const l=pick(L.filter(x=>cs.includes(x[0])&&!/^(Antes de usar|Principio)/.test(x[1])));$('#rndOut').innerHTML=`<div class="say">${esc(l[1])}<small>${esc(l[2])}</small></div><button class="btn ghost" id="rndCopy">Copiar</button>`;$('#rndCopy').onclick=()=>copy(l[1])});
+
+/* ---------- ESCENARIOS ---------- */
+const ESCC={bar:'Bar/discoteca',dia:'De día',grupo:'Grupos',tensa:'Situaciones tensas',cita:'Cita',dig:'Digital'};
+const ESC=[
+ ['bar','Ella está en un grupo de 3 o más','Lo normal: casi nunca están solas.',['Abre al grupo con una opinión.','Habla con todas, sin centrarte en la que te gusta.','Pregunta de qué se conocen.','Si ya caes bien: “No quiero ignorar a tu amiga, ¿les importa si hablo un poco con ella?”'],'“Una pregunta rápida para una opinión femenina…”'],
+ ['bar','Dos amigas sentadas en la barra','El error de Sasha en Belgrado: llegar por detrás.',['Llega por el lado, de frente.','Si no hay sitio, no te quedes encima: ponte de lado y con límite de tiempo.','Usa el test de las mejores amigas.'],'“¿Cuánto tiempo hace que se conocen? Se nota.”'],
+ ['bar','La música está altísima','No se oye nada.',['Acércate al oído brevemente, no te quedes pegado.','Usa lo visual: juegos con las manos, el número del 1 al 10.','Propón salir a un patio o zona tranquila.'],'“Aquí no se oye nada. ¿Salimos un rato a la terraza?”'],
+ ['bar','Llegaste temprano y el local está vacío','Mystery lo usaba: menos gente, menos competencia.',['Habla con el personal (bartender, DJ).','Ganarte al lugar te da presencia cuando se llena.'],'“¿Qué es lo mejor que preparas tú? No lo de la carta.”'],
+ ['grupo','Grupo mixto con hombres','Teoría de grupo: si caes bien a los chicos, todo fluye.',['Saluda primero a ellos.','Muestra un juego o historia al grupo entero.','Pregunta de qué se conocen. Si ella es pareja de alguno: “Un gusto, chicos” y te vas.'],'“Chicos, necesito un jurado imparcial…”'],
+ ['grupo','La amiga “protectora” te corta','Es normal: cuida a su amiga.',['Gánatela a ella primero. Pregúntale su opinión.','Nunca la ignores ni la menosprecies.','Si sigue incómoda, despídete con buena cara.'],'“Tú eres la que manda aquí, ¿verdad? Me caes bien.”'],
+ ['grupo','Tu amigo te hace de compañero (ala)','El libro: el ala distrae al resto del grupo.',['Acuerden señales simples (“voy a la barra”).','Su papel: hacer reír al grupo, no rescatarte.','Nadie corta el rollo del otro.'],'Ala: “¿Ustedes son de aquí? Les cuento algo raro de este lugar…”'],
+ ['bar','Quieres convertir la charla en una segunda cita','Las apuestas gana-gana hacen que el siguiente encuentro sea parte del juego.',['Espera a que ya haya buena onda (fase Enganchar o después).','Propón una apuesta pequeña: copa, café, postre, baile.','Gana o pierde, cumple con humor y fija cuándo.','Si no le interesa apostar, no insistas: pasa a otro tema.'],'“Si adivino en qué trabajas, me debes una copa. Si fallo, la pago yo.”'],
+ ['tensa','Ella dice “tengo novio”','En el libro hay “destructores de novio”. Aquí no.',['Créele. Si quieres, sigue la charla como algo amistoso.','No preguntes detalles ni intentes competir.'],'“¡Qué suerte la de él! Bueno, igual necesito tu voto para el debate.”'],
+ ['tensa','Un tipo hostil se mete','El “MAG” del libro. Tyler Durden convertía esto en duelo.',['No compitas ni lo humilles.','Sonrisa, tono tranquilo, sin contacto físico.','Si la situación escala: “Tranquilo, ya me iba” y te vas. Nada vale una pelea.'],'“Todo bien, hermano. Solo preguntaba por un debate. Que la pasen bien.”'],
+ ['tensa','Ella te pregunta: “¿Esto es una técnica?”','A Style le pasó con chicas que ya conocían las frases.',['Sé honesto y ríete de ti mismo.','Cambia a conversación normal, sin guion.'],'“Sí, y me está saliendo regular 😂. En serio, quería hablar contigo.”'],
+ ['tensa','Ella ha bebido demasiado','Muchas escenas del libro pasan aquí.',['Ninguna escalada física. Ninguna.','Asegúrate de que sus amigas estén con ella.','Si quieres volver a verla, propone otro día.'],'“Mejor lo dejamos para otro día con la cabeza clara. Toma, mi número.”'],
+ ['tensa','Ella dice que no a un beso','Mystery: “No pasa nada.”',['Sonríe, retírate un poco, cambia de tema.','No preguntes por qué ni lo vuelvas a intentar esa noche.'],'“Tranquila. Oye, ¿al final qué pasó con lo de tu viaje?”'],
+ ['tensa','Te quedas en blanco','Le pasó a Style con la Playmate.',['Usa el botón “Me quedé en blanco” en la pestaña Ahora.','O dilo en voz alta: los nervios honestos caen bien.'],'“Me quedé en blanco. Dame un tema, yo pongo la opinión.”'],
+ ['dia','Café o juguería','Contexto relajado, hay tiempo.',['Comenta lo que pidió.','Si está con laptop o leyendo, respeta: una pregunta y si contesta corto, la dejas.'],'“¿Qué libro es? Llevo semanas buscando algo bueno que leer.”'],
+ ['dia','Tienda o supermercado','Ella está de paso.',['Pide su opinión sobre algo que está cerca.','Sé rápido: 2–3 minutos y propón seguir otro día.'],'“¿Este vino o este otro? Es para una cena y no tengo idea.”'],
+ ['dia','En la calle','Sin excusa clara: hace falta directo.',['Desde el frente, no la persigas.','Directo y amable. Si se va, la dejas ir.'],'“Perdona, no suelo hacer esto, pero te vi y quería saludarte. Soy ___.”'],
+ ['dia','Gimnasio','Mucha gente viene a entrenar, no a socializar.',['Solo si hay contacto previo (miradas, saludos).','Nunca mientras está en una serie o con audífonos.'],'“Llevo semanas viéndote con esa rutina. ¿Me das un consejo?”'],
+ ['dia','Evento, curso o conferencia','Tienen un tema en común: úsalo.',['Pregunta sobre la charla o el curso.','Propón café en la pausa.'],'“¿Qué te pareció lo que dijo sobre ___? Yo no estoy de acuerdo.”'],
+ ['cita','Primera cita','Mystery: ~7 horas de confianza antes de algo íntimo.',['Lugar con opción de cambiar de sitio.','Escucha más de lo que hablas.','Deja el celular en el bolsillo.'],'“Primero un café y luego vemos si te dejo elegir el postre.”'],
+ ['cita','Silencio incómodo en la cita','Pasa en todas.',['Sonríe. Un silencio no es un fracaso.','Saca un juego o una pregunta de conexión.'],'“¿Qué es lo más espontáneo que has hecho?”'],
+ ['cita','Ella pide que le invites todo','El libro aconsejaba no invitar nada. Exagerado.',['Invitar una vez es amable. Pagarlo todo para comprar atención, no.','Si te molesta, propón dividir con naturalidad.'],'“Esta la pago yo, la siguiente tú. Así hay excusa para otra.”'],
+ ['cita','La cita va mal','No hay química.',['No fuerces. Termina con amabilidad.','No es un fracaso: es información.'],'“Me lo pasé bien charlando. Te dejo descansar, que mañana madrugo.”'],
+ ['dig','Primer mensaje después de conocerse','Un o dos días máximo.',['Retoma algo que hablaron.','Propón algo concreto.'],'“Hola, soy ___ el del cubo 🐎. ¿Café el jueves?”'],
+ ['dig','No te contesta','Courtney y el realizador: no insistas.',['Máximo un mensaje de seguimiento.','Después, déjalo ir.'],'“Me quedé con ganas del café. Si te animas, avísame 🙂”'],
+ ['dig','Apps de citas','El experimento de anuncios de Style: perfil honesto, en persona caballero.',['Fotos reales y recientes.','Primer mensaje sobre algo de su perfil.','A los pocos mensajes, propón verse.'],'“Vi que fuiste a ___. ¿Vale la pena o es puro Instagram?”']
+];
+let ecat='all';
+function renderEsc(){
+  $('#escCats').innerHTML=[['all','Todos'],...Object.entries(ESCC)].map(([k,v])=>`<button class="${k===ecat?'on':''}" data-c="${k}">${v}</button>`).join('');
+  $$('#escCats button').forEach(b=>b.onclick=()=>{ecat=b.dataset.c;renderEsc()});
+  $('#escList').innerHTML=ESC.filter(e=>ecat==='all'||e[0]===ecat).map(e=>`<details><summary>${esc(e[1])}</summary><div class="in"><span class="chip">${ESCC[e[0]]}</span><p class="muted small">${esc(e[2])}</p><ol>${e[3].map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="say">${esc(e[4])}</div><button class="btn ghost" data-t="${esc(e[4])}">Copiar frase</button></div></details>`).join('');
+  $$('#escList .btn').forEach(b=>b.onclick=()=>copy(b.dataset.t));
+}
+
+/* ---------- RESCATE ---------- */
+const TH={
+ obs:['“Ese cuadro/canción/lugar… ¿qué te parece?”','“¿Viste a esa pareja bailando? Tienen más ganas que ritmo.”','“Este lugar tiene una energía rara hoy, ¿no?”','“¿Qué crees que pidió esa persona? Apuesto a que algo con paraguas.”'],
+ ella:['“Volvamos a eso que dijiste de ___. ¿Cómo empezó?”','“Dijiste que te gusta ___. ¿Desde cuándo?”','“Eso que dijiste de tu trabajo… ¿te gusta o es temporal?”','“Mencionaste a tu hermana: ¿son parecidas?”'],
+ hist:['La vez que te perdiste en una ciudad nueva.','Lo más raro que te pasó en el trabajo.','Una comida que nunca volverías a probar.','Un viaje que salió mal pero terminó bien.','Algo que aprendiste este año y te sorprendió.'],
+ juego:['Dos verdades y una mentira.','El cubo en el desierto.','Adivina el número del 1 al 10.','“Playa o montaña / café o té / madrugar o trasnochar”: ronda rápida.','“Si fueras un personaje de película, ¿quién?”','Apuesta: “Si adivino en qué trabajas, me debes una copa.”','Apuesta: “Te apuesto el postre a que te hago reír en 10 segundos.”','Piedra, papel o tijera: quien pierda elige la próxima canción.']
+};
+$$('[data-th]').forEach(b=>b.onclick=()=>{$('#thOut').innerHTML=`<div class="say">${esc(pick(TH[b.dataset.th]))}</div>`});
+let tInt=null;
+$('#tbtn').onclick=()=>{clearInterval(tInt);let n=3;$('#tval').textContent=n;tInt=setInterval(()=>{n--;if(n<=0){clearInterval(tInt);$('#tval').textContent='¡Ve!';try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}else $('#tval').textContent=n},1000)};
+
+/* ---------- tabs ---------- */
+$$('nav.tabs button').forEach(b=>b.onclick=()=>{$$('nav.tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));scrollTo({top:0})});
+
+renderPhase();renderIOI();renderCats();renderLines();renderEsc();
+</script>
+</body>
+</html>
