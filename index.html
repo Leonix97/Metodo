@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Modo Hilo</title>
+<meta name="description" content="Guía de bolsillo para no perder el hilo de una conversación: entradas, preguntas profundas y coqueteo por niveles.">
+<meta name="theme-color" content="#d6452b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Modo Hilo">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -92,6 +99,29 @@ li{margin:4px 0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
 .kpi b{display:block;font-family:Fraunces,serif;font-size:24px}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 10px;position:relative}
+.stepper button{appearance:none;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:10px 4px 8px;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.stepper .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:Fraunces,serif;font-weight:800;font-size:17px;background:var(--chip);color:var(--ink)}
+.stepper .lab{font-size:11px;font-weight:700;text-align:center;line-height:1.15}
+.stepper button.on{border-color:var(--lc);background:var(--lbg)}
+.stepper button.on .n,.stepper button.past .n{background:var(--lc);color:#fff}
+.stepper button.past{opacity:.75}
+.lvl-card{border-radius:18px;padding:16px;margin:6px 0 12px;background:var(--lbg);border:2px solid var(--lc)}
+.lvl-card .tag{display:inline-block;background:var(--lc);color:#fff;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.lvl-card h3.tt{font-family:Fraunces,serif;text-transform:none;letter-spacing:0;color:var(--ink);font-size:26px;margin:8px 0 4px}
+.lvl-card .say{border-left-color:var(--lc);background:var(--card)}
+.lvl-card .sub{font-size:13px;font-weight:700;margin:10px 0 2px}
+.lvl-card ul{font-size:14px;margin:2px 0}
+.lvl-card .btn.primary{background:var(--lc);border-color:var(--lc);color:#fff}
+.line.lv{border-left:4px solid var(--lc);padding-left:10px;margin:6px 0;border-top:0;background:var(--card);border-radius:0 10px 10px 0}
+.lvbadge{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--lc);border-radius:999px;padding:1px 8px;margin-right:6px;vertical-align:1px}
+.sublvl{font-size:12px;font-weight:700;color:var(--lc)}
+[data-l="1"]{--lc:#2f8a5b;--lbg:#e5f3eb}
+[data-l="2"]{--lc:#c27a12;--lbg:#fbefd9}
+[data-l="3"]{--lc:#c8323c;--lbg:#fbe3e3}
+[data-l="4"]{--lc:#6b6f8a;--lbg:#ecedf3}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) [data-l="1"]{--lc:#3fa872;--lbg:#15281e}:root:not([data-theme="light"]) [data-l="2"]{--lc:#d99128;--lbg:#2e2412}:root:not([data-theme="light"]) [data-l="3"]{--lc:#e04a55;--lbg:#331719}:root:not([data-theme="light"]) [data-l="4"]{--lc:#8b8fab;--lbg:#22232c}}
+:root[data-theme="dark"] [data-l="1"]{--lc:#3fa872;--lbg:#15281e}:root[data-theme="dark"] [data-l="2"]{--lc:#d99128;--lbg:#2e2412}:root[data-theme="dark"] [data-l="3"]{--lc:#e04a55;--lbg:#331719}:root[data-theme="dark"] [data-l="4"]{--lc:#8b8fab;--lbg:#22232c}
 </style>
 </head>
 <body>
@@ -147,25 +177,13 @@ li{margin:4px 0}
 
 <!-- ============ FRASES ============ -->
 <section class="view on" id="v-frases">
-  <h2>Técnicas y temas</h2>
-  <p class="muted small">Entradas, temas de conversación, juegos y apuestas a un toque. Saca uno al azar o busca en la lista.</p>
-  <div class="card">
-    <b>Dame uno ya</b>
-    <div class="row" style="margin-top:8px">
-      <button class="btn" data-rnd="ab">🚪 Entrada</button>
-      <button class="btn" data-rnd="tem,prof">💬 Tema</button>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <button class="btn" data-rnd="prof">💭 Pregunta profunda</button>
-      <button class="btn" data-rnd="coq">🔥 Coqueteo</button>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <button class="btn" data-rnd="juego,val">🎲 Técnica</button>
-      <button class="btn" data-rnd="apu">🤝 Apuesta</button>
-    </div>
-    <div id="rndOut"></div>
+  <div class="lvl-head">
+    <h2 style="margin-bottom:2px">¿En qué nivel van?</h2>
+    <p class="muted small" style="margin:0">Empieza siempre en el 1. Sube cuando veas las señales; si ella baja el ritmo, baja tú también.</p>
   </div>
-  <input type="search" id="q" placeholder="Buscar: grupo, número, silencio, café…">
+  <div class="stepper" id="stepper"></div>
+  <div class="lvl-card" id="lvlCard"></div>
+  <input type="search" id="q" placeholder="Buscar en todos los niveles: café, beso, viaje…">
   <div class="filters" id="cats"></div>
   <div id="lines"></div>
 </section>
@@ -422,7 +440,7 @@ const BLANK=[
 $('#blankBtn').onclick=()=>{const b=pick(BLANK);$('#blankOut').innerHTML=`<div class="card"><b>${esc(b[0])}</b><div class="say">${esc(b[1])}</div><button class="btn block" onclick="document.getElementById('blankBtn').click()">Otra idea ↻</button></div>`};
 
 /* ---------- BANCO DE FRASES ---------- */
-const CATS={ab:'Entradas',tem:'Temas de conversación',prof:'Preguntas profundas',coq:'Coqueteo (por niveles)',juego:'Juegos',apu:'Apuestas',val:'Mostrar valor',bro:'Bromas',sit:'Situacional',dia:'De día',eng:'Enganchar',con:'Conectar',cont:'Contacto',num:'Número y plan',msg:'Mensajes',sal:'Salidas',resp:'Respuestas a pruebas'};
+const CATS={ab:'Entradas',tem:'Temas para arrancar',prof:'Preguntas profundas',coq:'Preguntas íntimas y juguetonas',juego:'Juegos',apu:'Apuestas',val:'Mostrar valor',bro:'Bromas',sit:'Situacional',dia:'De día',eng:'Enganchar',con:'Conectar',cont:'Contacto',num:'Número y plan',msg:'Mensajes',sal:'Salidas',resp:'Respuestas a pruebas'};
 const L=[
  ['ab','“Una pregunta rápida para una opinión femenina…”','Comodín. Luego cualquier dilema.'],
  ['ab','“Mi amigo tiene un lío: su novia no quiere que hable con su ex de la universidad. ¿Quién tiene razón?”','La de Style. Genera debate.'],
@@ -477,35 +495,34 @@ const L=[
  ['prof','“¿Qué te gustaría que dijeran de ti dentro de 10 años?”','Futuro, identidad y propósito.'],
  ['prof','“¿Cuál es el mejor regalo que has recibido, sin contar dinero?”','Habla de afecto y detalles; te dice qué aprecia.'],
  ['prof','“¿Qué te relaja de verdad después de un día malo?”','Práctica y personal; da ideas para planes tranquilos.'],
-['coq','Antes de usar estas preguntas','Úsalas solo con 3 o más señales de interés y sube de nivel poco a poco. Si ella cambia de tema o responde corto, vuelve a lo ligero sin insistir.'],
- ['coq','“¿Qué es lo primero que te atrae de alguien?”','Nivel 1 · ya hay confianza y coqueteo. Suave y abierta; responde tú también.'],
- ['coq','“¿Qué hace que alguien te parezca irresistible?”','Nivel 1 · ya hay confianza y coqueteo. Escucha: te dice qué valora.'],
- ['coq','“¿Eres de las que coquetean o de las que esperan que coqueteen contigo?”','Nivel 1 · ya hay confianza y coqueteo. Juguetona; da pie a bromas.'],
- ['coq','“¿Qué tipo de mirada te pone nerviosa?”','Nivel 1 · ya hay confianza y coqueteo. Crea tensión con la mirada sin tocar.'],
- ['coq','“¿Qué detalle hace que empieces a ver diferente a alguien?”','Nivel 1 · ya hay confianza y coqueteo. Habla de detalles que ella aprecia.'],
- ['coq','“¿Qué te gusta más: que te hagan reír o que te sorprendan?”','Nivel 1 · ya hay confianza y coqueteo. Similar. Fácil de responder.'],
- ['coq','“¿Qué es lo más bonito que alguien ha hecho para conquistarte?”','Nivel 1 · ya hay confianza y coqueteo. Similar. Salen historias tiernas.'],
- ['coq','“¿Qué te parece más atractivo: seguridad o misterio?”','Nivel 2 · hay complicidad. Elección doble, fácil y reveladora.'],
- ['coq','“¿Alguna vez alguien te gustó cuando no debía gustarte?”','Nivel 2 · hay complicidad. Historias con chispa; no juzgues.'],
- ['coq','“¿Qué crea más tensión para ti: una mirada o una conversación?”','Nivel 2 · hay complicidad. Conecta con lo que están viviendo.'],
- ['coq','“¿Te han dado ganas de besar a alguien y no lo hiciste?”','Nivel 2 · hay complicidad. Atrevida pero indirecta.'],
- ['coq','“¿Qué hace que un beso sea difícil de olvidar?”','Nivel 2 · hay complicidad. Romántica; deja hablar.'],
- ['coq','“¿Primera cita: algo tranquilo o algo con adrenalina?”','Nivel 2 · hay complicidad. Similar. Te da ideas para el siguiente plan.'],
- ['coq','“¿Qué es lo más romántico que te parece cursi pero igual te gusta?”','Nivel 2 · hay complicidad. Similar. Divertida y honesta.'],
- ['coq','“¿Qué situación te parece sorprendentemente sexy?”','Nivel 3 · ambos cómodos hablando de atracción. Sube el tono; mira su reacción.'],
- ['coq','“¿Qué puede hacer alguien sin tocarte y aun así ponerte nerviosa?”','Nivel 3 · ambos cómodos hablando de atracción. Tensión sin contacto.'],
- ['coq','“¿Qué te atrae que normalmente no admitirías de primeras?”','Nivel 3 · ambos cómodos hablando de atracción. Confesión ligera; comparte tú algo también.'],
- ['coq','“¿Prefieres que alguien sea directo o que aumente la tensión poco a poco?”','Nivel 3 · ambos cómodos hablando de atracción. Además te dice cómo quiere que avances. Hazle caso.'],
- ['coq','“¿Qué momento de una cita te parece más emocionante?”','Nivel 3 · ambos cómodos hablando de atracción. Te da pistas del ritmo que le gusta.'],
- ['coq','“¿Qué voz o acento te parece más atractivo?”','Nivel 3 · ambos cómodos hablando de atracción. Similar. Juguetona.'],
- ['coq','“¿Qué te pone más nerviosa: un mensaje inesperado o una mirada larga?”','Nivel 3 · ambos cómodos hablando de atracción. Similar. Tensión en pequeño.'],
- ['coq','“¿Qué te parece más íntimo que un beso?”','Nivel 4 · hay química clara. Conversación cercana; escucha.'],
- ['coq','“¿Alguna vez una conversación cambió por completo cómo veías a alguien?”','Nivel 4 · hay química clara. Puede hablar de ustedes sin decirlo.'],
- ['coq','“¿Qué tipo de química es imposible fingir?”','Nivel 4 · hay química clara. Reconoce lo que está pasando entre ustedes.'],
- ['coq','“¿Qué pregunta esperabas que te hiciera y todavía no te hice?”','Nivel 4 · hay química clara. Le das el control del siguiente tema.'],
- ['coq','“¿Qué es lo que más te ha gustado de esta noche hasta ahora?”','Nivel 4 · hay química clara. Similar. Lee cómo se siente; buen momento para proponer el siguiente paso.'],
- ['coq','“Si esto fuera una película, ¿qué escena vendría ahora?”','Nivel 4 · hay química clara. Similar. Juego directo; su respuesta te dice qué quiere. Si duda, ríete y sigue.'],
- ['coq','“¿Te puedo besar?”','Nivel 4 · hay química clara. Cuando la química es clara, pregunta. Sí → adelante. Duda o no → “Tranquila” y otro tema.'],
+ ['coq','“¿Qué es lo primero que te atrae de alguien?”','3A · ya hay confianza y coqueteo. Suave y abierta; responde tú también.'],
+ ['coq','“¿Qué hace que alguien te parezca irresistible?”','3A · ya hay confianza y coqueteo. Escucha: te dice qué valora.'],
+ ['coq','“¿Eres de las que coquetean o de las que esperan que coqueteen contigo?”','3A · ya hay confianza y coqueteo. Juguetona; da pie a bromas.'],
+ ['coq','“¿Qué tipo de mirada te pone nerviosa?”','3A · ya hay confianza y coqueteo. Crea tensión con la mirada sin tocar.'],
+ ['coq','“¿Qué detalle hace que empieces a ver diferente a alguien?”','3A · ya hay confianza y coqueteo. Habla de detalles que ella aprecia.'],
+ ['coq','“¿Qué te gusta más: que te hagan reír o que te sorprendan?”','3A · ya hay confianza y coqueteo. Similar. Fácil de responder.'],
+ ['coq','“¿Qué es lo más bonito que alguien ha hecho para conquistarte?”','3A · ya hay confianza y coqueteo. Similar. Salen historias tiernas.'],
+ ['coq','“¿Qué te parece más atractivo: seguridad o misterio?”','3B · hay complicidad. Elección doble, fácil y reveladora.'],
+ ['coq','“¿Alguna vez alguien te gustó cuando no debía gustarte?”','3B · hay complicidad. Historias con chispa; no juzgues.'],
+ ['coq','“¿Qué crea más tensión para ti: una mirada o una conversación?”','3B · hay complicidad. Conecta con lo que están viviendo.'],
+ ['coq','“¿Te han dado ganas de besar a alguien y no lo hiciste?”','3B · hay complicidad. Atrevida pero indirecta.'],
+ ['coq','“¿Qué hace que un beso sea difícil de olvidar?”','3B · hay complicidad. Romántica; deja hablar.'],
+ ['coq','“¿Primera cita: algo tranquilo o algo con adrenalina?”','3B · hay complicidad. Similar. Te da ideas para el siguiente plan.'],
+ ['coq','“¿Qué es lo más romántico que te parece cursi pero igual te gusta?”','3B · hay complicidad. Similar. Divertida y honesta.'],
+ ['coq','“¿Qué situación te parece sorprendentemente sexy?”','3C · ambos cómodos hablando de atracción. Sube el tono; mira su reacción.'],
+ ['coq','“¿Qué puede hacer alguien sin tocarte y aun así ponerte nerviosa?”','3C · ambos cómodos hablando de atracción. Tensión sin contacto.'],
+ ['coq','“¿Qué te atrae que normalmente no admitirías de primeras?”','3C · ambos cómodos hablando de atracción. Confesión ligera; comparte tú algo también.'],
+ ['coq','“¿Prefieres que alguien sea directo o que aumente la tensión poco a poco?”','3C · ambos cómodos hablando de atracción. Además te dice cómo quiere que avances. Hazle caso.'],
+ ['coq','“¿Qué momento de una cita te parece más emocionante?”','3C · ambos cómodos hablando de atracción. Te da pistas del ritmo que le gusta.'],
+ ['coq','“¿Qué voz o acento te parece más atractivo?”','3C · ambos cómodos hablando de atracción. Similar. Juguetona.'],
+ ['coq','“¿Qué te pone más nerviosa: un mensaje inesperado o una mirada larga?”','3C · ambos cómodos hablando de atracción. Similar. Tensión en pequeño.'],
+ ['coq','“¿Qué te parece más íntimo que un beso?”','3D · hay química clara. Conversación cercana; escucha.'],
+ ['coq','“¿Alguna vez una conversación cambió por completo cómo veías a alguien?”','3D · hay química clara. Puede hablar de ustedes sin decirlo.'],
+ ['coq','“¿Qué tipo de química es imposible fingir?”','3D · hay química clara. Reconoce lo que está pasando entre ustedes.'],
+ ['coq','“¿Qué pregunta esperabas que te hiciera y todavía no te hice?”','3D · hay química clara. Le das el control del siguiente tema.'],
+ ['coq','“¿Qué es lo que más te ha gustado de esta noche hasta ahora?”','3D · hay química clara. Similar. Lee cómo se siente; buen momento para proponer el siguiente paso.'],
+ ['coq','“Si esto fuera una película, ¿qué escena vendría ahora?”','3D · hay química clara. Similar. Juego directo; su respuesta te dice qué quiere. Si duda, ríete y sigue.'],
+ ['coq','“¿Te puedo besar?”','3D · hay química clara. Cuando la química es clara, pregunta. Sí → adelante. Duda o no → “Tranquila” y otro tema.'],
  ['sit','“Este lugar tiene la peor y la mejor música a la vez. ¿Cuál fue la peor canción hasta ahora?”','Bar o discoteca.'],
  ['sit','“¿Eso que pediste está bueno o me arrepiento si lo pido?”','Restaurantes, cafés, juguerías.'],
  ['sit','“¿Cuál está mejor, el huracán o la brisa? … Perfecto, me pido la brisa.”','La broma de Tyler en el Juicemaster: pedir consejo y hacer lo contrario.'],
@@ -574,21 +591,58 @@ const L=[
  ['resp','Ella: “Invítame una copa.” → “Cuando me ganes un juego. Te reto.”','No compras atención, la ganas jugando.'],
  ['resp','Ella: “Yo hago unas mamadas espectaculares.” (o cualquier frase provocadora) → “Es digno de respeto.”','La respuesta a lo Ali G del libro: ni escandalizado ni excitado.']
 ];
-let cat='all';
+const LEVELS=[
+ {n:1,short:'Arrancar',name:'Romper el hielo',tag:'Nivel 1 · Desconocidos',
+  desc:'Entradas, temas ligeros, juegos y apuestas. Todo es casual y se puede decir en grupo.',
+  cats:['ab','tem','sit','dia','eng','juego','apu','bro','val'],
+  up:['Te responde con algo más que monosílabos.','Te pregunta algo a ti (nombre, a qué te dedicas).','Se ríe de verdad y se queda cerca.']},
+ {n:2,short:'Confianza',name:'Conocerse de verdad',tag:'Nivel 2 · Hay confianza',
+  desc:'Preguntas profundas: pasiones, recuerdos, sueños y valores. Baja el ritmo y escucha más de lo que hablas.',
+  cats:['prof','con'],
+  up:['Te cuenta cosas personales sin que insistas.','Te sostiene la mirada y retoma la charla tras un silencio.','Ella también te hace preguntas profundas.']},
+ {n:3,short:'Química',name:'Íntimo y juguetón',tag:'Nivel 3 · Hay química',
+  desc:'Preguntas de coqueteo, de menos a más (3A → 3D). Úsalas solo con 3 o más señales de interés.',
+  cats:['coq','cont','num'],
+  up:['Ella sigue el juego y sube el tono también.','Si cambia de tema o responde corto, vuelve al nivel 2 sin insistir.','Para cualquier paso físico: pregunta. Un “no” o una duda se respetan.']},
+ {n:4,short:'Extras',name:'Mensajes y salidas',tag:'Herramientas',
+  desc:'Para después de la conversación o cuando algo no sale: mensajes, despedidas y respuestas a pruebas.',
+  cats:['msg','sal','resp'],up:[]}
+];
+const lvOf=c=>(LEVELS.find(l=>l.cats.includes(c))||LEVELS[3]).n;
+let lvl=store.get('lvl',1), cat='all';
+function renderLevel(){
+  const L0=LEVELS[lvl-1];
+  $('#stepper').innerHTML=LEVELS.map(l=>`<button data-l="${l.n}" class="${l.n===lvl?'on':l.n<lvl&&lvl<4?'past':''}" data-go="${l.n}"><span class="n">${l.n<4?l.n:'+'}</span><span class="lab">${l.short}</span></button>`).join('');
+  $$('#stepper button').forEach(b=>b.onclick=()=>{lvl=+b.dataset.go;cat='all';store.set('lvl',lvl);$('#q').value='';renderLevel()});
+  const nx=LEVELS[lvl];
+  $('#lvlCard').setAttribute('data-l',lvl);
+  $('#lvlCard').innerHTML=`<span class="tag">${L0.tag}</span><h3 class="tt">${L0.name}</h3><p class="small" style="margin:0">${L0.desc}</p>
+   <div id="rndOut"></div>
+   <div class="row" style="margin-top:8px"><button class="btn primary" id="rndBtn">🎲 Dame una de este nivel</button></div>
+   ${L0.up.length?`<div class="sub">${lvl<3?'Sube al nivel '+(lvl+1)+' cuando:':'Ojo en este nivel:'}</div><ul>${L0.up.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}
+   <div class="row" style="margin-top:6px">${lvl>1&&lvl<4?`<button class="btn ghost" id="lvDown">← Bajar al ${lvl-1}</button>`:''}${lvl<3?`<button class="btn" id="lvUp">Subir al ${lvl+1} →</button>`:''}</div>`;
+  $('#rndBtn').onclick=()=>{const pool=L.filter(x=>L0.cats.includes(x[0])&&!/^(Principio|Si pierdes)/.test(x[1]));const l=pick(pool);$('#rndOut').innerHTML=`<div class="say">${esc(l[1])}<small>${esc(l[2])}</small></div><button class="btn ghost" id="rndCopy">Copiar</button>`;$('#rndCopy').onclick=()=>copy(l[1])};
+  if($('#lvUp'))$('#lvUp').onclick=()=>{lvl++;cat='all';store.set('lvl',lvl);renderLevel();scrollTo({top:0,behavior:'smooth'})};
+  if($('#lvDown'))$('#lvDown').onclick=()=>{lvl--;cat='all';store.set('lvl',lvl);renderLevel();scrollTo({top:0,behavior:'smooth'})};
+  renderCats();renderLines();
+}
 function renderCats(){
-  $('#cats').innerHTML=[['all','Todas'],...Object.entries(CATS)].map(([k,v])=>`<button class="${k===cat?'on':''}" data-c="${k}">${v}</button>`).join('');
+  const q=$('#q').value.trim();
+  if(q){$('#cats').innerHTML='';return}
+  const cs=LEVELS[lvl-1].cats.filter(c=>L.some(x=>x[0]===c));
+  $('#cats').innerHTML=[['all','Todo el nivel'],...cs.map(c=>[c,CATS[c]])].map(([k,v])=>`<button class="${k===cat?'on':''}" data-c="${k}">${v}</button>`).join('');
   $$('#cats button').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderCats();renderLines()});
 }
 function renderLines(){
   const q=$('#q').value.trim().toLowerCase();
+  const inLv=c=>q?true:LEVELS[lvl-1].cats.includes(c)&&(cat==='all'||c===cat);
   const groups={};
-  L.filter(l=>(cat==='all'||l[0]===cat)&&(!q||(l[1]+' '+l[2]+' '+CATS[l[0]]).toLowerCase().includes(q))).forEach(l=>{(groups[l[0]]=groups[l[0]]||[]).push(l)});
-  const keys=Object.keys(groups);
-  $('#lines').innerHTML=keys.length?keys.map(k=>`<div class="card"><h3 style="margin-top:0">${CATS[k]}</h3>${groups[k].map(l=>`<div class="line"><button class="copy" data-t="${esc(l[1])}">copiar</button><div class="t">${esc(l[1])}</div><div class="w">${esc(l[2])}</div></div>`).join('')}</div>`).join(''):'<p class="muted">Nada con ese texto.</p>';
+  L.filter(l=>inLv(l[0])&&(!q||(l[1]+' '+l[2]+' '+CATS[l[0]]).toLowerCase().includes(q))).forEach(l=>{(groups[l[0]]=groups[l[0]]||[]).push(l)});
+  const order=LEVELS.flatMap(l=>l.cats).filter(c=>groups[c]);
+  $('#lines').innerHTML=order.length?order.map(k=>{const n=lvOf(k);let last='';return `<div class="card" data-l="${n}"><h3 style="margin-top:0"><span class="lvbadge">${n<4?'Nivel '+n:'Extra'}</span>${CATS[k]}</h3>${groups[k].map(l=>{const m=l[2].match(/^(3[A-D]) · ([^.]*)\./);let hd='';if(m&&m[1]!==last){last=m[1];hd=`<div class="sublvl" style="margin-top:10px">${m[1]} — ${m[2]}</div>`}return hd+`<div class="line lv"><button class="copy" data-t="${esc(l[1])}">copiar</button><div class="t">${esc(l[1])}</div><div class="w">${esc(m?l[2].slice(m[0].length).trim():l[2])}</div></div>`}).join('')}</div>`}).join(''):'<p class="muted">Nada con ese texto.</p>';
   $$('#lines .copy').forEach(b=>b.onclick=()=>copy(b.dataset.t));
 }
-$('#q').oninput=renderLines;
-$$('[data-rnd]').forEach(b=>b.onclick=()=>{const cs=b.dataset.rnd.split(',');const l=pick(L.filter(x=>cs.includes(x[0])&&!/^(Antes de usar|Principio)/.test(x[1])));$('#rndOut').innerHTML=`<div class="say">${esc(l[1])}<small>${esc(l[2])}</small></div><button class="btn ghost" id="rndCopy">Copiar</button>`;$('#rndCopy').onclick=()=>copy(l[1])});
+$('#q').oninput=()=>{renderCats();renderLines()};
 
 /* ---------- ESCENARIOS ---------- */
 const ESCC={bar:'Bar/discoteca',dia:'De día',grupo:'Grupos',tensa:'Situaciones tensas',cita:'Cita',dig:'Digital'};
@@ -642,7 +696,8 @@ $('#tbtn').onclick=()=>{clearInterval(tInt);let n=3;$('#tval').textContent=n;tIn
 /* ---------- tabs ---------- */
 $$('nav.tabs button').forEach(b=>b.onclick=()=>{$$('nav.tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));scrollTo({top:0})});
 
-renderPhase();renderIOI();renderCats();renderLines();renderEsc();
+renderPhase();renderIOI();renderLevel();renderEsc();
+if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
 </script>
 </body>
 </html>
