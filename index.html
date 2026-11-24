@@ -45,6 +45,8 @@ p{margin:6px 0}
 .small{font-size:13px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
 .btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;border-radius:12px;padding:12px 14px;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.6}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.ghost{background:transparent}
 .btn.block{width:100%}
@@ -133,19 +135,28 @@ li{margin:4px 0}
 <main class="wrap">
 
 <!-- ============ AHORA ============ -->
-<section class="view" id="v-ahora">
+<section class="view" id="v-ahora" role="region" aria-labelledby="phaseName" aria-hidden="true">
   <div class="phase-bar" id="phaseBar"></div>
   <div class="phase-title">
     <span class="muted small" id="phaseNum"></span>
     <span class="muted small" id="phaseGoalShort"></span>
   </div>
-  <div class="big" id="phaseName"></div>
+  <h2 class="big" id="phaseName" aria-live="polite"></h2>
   <p id="phaseGoal"></p>
 
   <div class="card">
     <h3 style="margin-top:0">Di algo así</h3>
     <div id="phaseSay"></div>
     <button class="btn block" id="moreSay">Otra frase ↻</button>
+    <form id="customPhraseForm" class="card" style="margin:10px 0 0;padding:12px" autocomplete="off">
+      <label for="customPhrase" class="small"><b>Agrega una frase para esta fase</b></label>
+      <div class="row" style="margin-top:6px">
+        <input id="customPhrase" type="text" maxlength="240" required placeholder="Escribe una frase con tus palabras" aria-describedby="customPhraseHint" style="flex:1;min-width:0">
+        <button class="btn primary" type="submit">Guardar frase</button>
+      </div>
+      <p id="customPhraseHint" class="muted small">Se guarda en este dispositivo y solo aparece en esta fase.</p>
+      <div id="customPhraseList" aria-live="polite"></div>
+    </form>
   </div>
 
   <div class="card">
@@ -176,9 +187,9 @@ li{margin:4px 0}
 </section>
 
 <!-- ============ FRASES ============ -->
-<section class="view on" id="v-frases">
+<section class="view on" id="v-frases" role="region" aria-labelledby="frasesTitle" aria-hidden="false">
   <div class="lvl-head">
-    <h2 style="margin-bottom:2px">¿En qué nivel van?</h2>
+    <h2 id="frasesTitle" style="margin-bottom:2px">¿En qué nivel van?</h2>
     <p class="muted small" style="margin:0">Empieza siempre en el 1. Sube cuando veas las señales; si ella baja el ritmo, baja tú también.</p>
   </div>
   <div class="stepper" id="stepper"></div>
@@ -189,16 +200,16 @@ li{margin:4px 0}
 </section>
 
 <!-- ============ ESCENARIOS ============ -->
-<section class="view" id="v-esc">
-  <h2>Escenarios</h2>
+<section class="view" id="v-esc" role="region" aria-labelledby="escTitle" aria-hidden="true">
+  <h2 id="escTitle">Escenarios</h2>
   <p class="muted small">Situaciones concretas: qué está pasando, qué hacer y qué decir.</p>
   <div class="filters" id="escCats"></div>
   <div id="escList"></div>
 </section>
 
 <!-- ============ RESCATE ============ -->
-<section class="view" id="v-rescate">
-  <h2>Rescate</h2>
+<section class="view" id="v-rescate" role="region" aria-labelledby="rescateTitle" aria-hidden="true">
+  <h2 id="rescateTitle">Rescate</h2>
   <p class="muted small">Para cuando la conversación se cae o te gana el nervio.</p>
 
   <div class="card">
@@ -241,8 +252,8 @@ li{margin:4px 0}
 </section>
 
 <!-- ============ MÉTODO ============ -->
-<section class="view" id="v-metodo">
-  <h2>El método, resumido</h2>
+<section class="view" id="v-metodo" role="region" aria-labelledby="metodoTitle" aria-hidden="true">
+  <h2 id="metodoTitle">El método, resumido</h2>
   <p class="muted small">Lo que <i>El método</i> (Neil Strauss) enseña, depurado: se queda lo que te hace mejor conversador y se quita lo que funciona a costa de la otra persona.</p>
 
   <div class="grid2">
@@ -303,15 +314,15 @@ li{margin:4px 0}
 
 </main>
 
-<nav class="tabs"><div class="wrap">
-  <button class="on" data-v="frases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Inicio</button>
-  <button data-v="ahora"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Fases</button>
-  <button data-v="esc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg>Escenarios</button>
-  <button data-v="rescate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="3"/></svg>Rescate</button>
-  <button data-v="metodo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/></svg>Método</button>
+<nav class="tabs" aria-label="Secciones principales"><div class="wrap">
+  <button type="button" class="on" data-v="frases" aria-controls="v-frases" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Inicio</button>
+  <button type="button" data-v="ahora" aria-controls="v-ahora"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Fases</button>
+  <button type="button" data-v="esc" aria-controls="v-esc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg>Escenarios</button>
+  <button type="button" data-v="rescate" aria-controls="v-rescate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="3"/></svg>Rescate</button>
+  <button type="button" data-v="metodo" aria-controls="v-metodo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/></svg>Método</button>
 </div></nav>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ---------- utilidades ---------- */
@@ -391,7 +402,7 @@ const PHASES=[
 let phase=store.get('phase',0), sayIdx=0;
 function renderPhase(){
   const p=PHASES[phase];
-  $('#phaseBar').innerHTML=PHASES.map((x,i)=>`<button aria-label="${esc(x.n)}" class="${i<phase?'done':i===phase?'on':''}" data-p="${i}"></button>`).join('');
+  $('#phaseBar').innerHTML=PHASES.map((x,i)=>`<button type="button" aria-label="Fase ${i+1}: ${esc(x.n)}" aria-current="${i===phase?'step':'false'}" class="${i<phase?'done':i===phase?'on':''}" data-p="${i}"></button>`).join('');
   $$('#phaseBar button').forEach(b=>b.onclick=()=>{phase=+b.dataset.p;sayIdx=0;store.set('phase',phase);renderPhase()});
   $('#phaseNum').textContent=`Fase ${phase+1} de ${PHASES.length}`;
   $('#phaseGoalShort').textContent=p.short;
@@ -399,11 +410,32 @@ function renderPhase(){
   $('#phaseGoal').textContent=p.goal;
   const s=p.say[sayIdx%p.say.length];
   $('#phaseSay').innerHTML=`<div class="say">${esc(s[0])}<small>${esc(s[1])}</small></div>`;
+  renderCustomPhasePhrases();
   $('#phaseNext').innerHTML=p.next.map(x=>`<li>${esc(x)}</li>`).join('');
   $('#phaseError').textContent=p.err;
   $('#prevPhase').disabled=phase===0;
   $('#nextPhase').textContent=phase===PHASES.length-1?'Reiniciar ↺':'Siguiente fase →';
 }
+const storedCustomPhrases=store.get('customPhasePhrases',null);
+const customPhrases=Array.isArray(storedCustomPhrases)?storedCustomPhrases:PHASES.map(()=>[]);
+function renderCustomPhasePhrases(){
+  const list=$('#customPhraseList'), phrases=Array.isArray(customPhrases[phase])?customPhrases[phase]:[];
+  list.innerHTML=phrases.length?`<h3 style="margin:10px 0 4px">Tus frases</h3>${phrases.map((text,i)=>`<div class="line"><div class="say">${esc(text)}</div><div class="row"><button type="button" class="btn" data-use-custom="${i}">Usar frase</button><button type="button" class="btn ghost" data-delete-custom="${i}" aria-label="Eliminar frase ${i+1}">Eliminar</button></div></div>`).join('')}`:'<p class="muted small">Aún no guardaste frases para esta fase.</p>';
+}
+$('#customPhraseForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const input=$('#customPhrase'), text=input.value.trim();
+  if(!text)return;
+  if(!Array.isArray(customPhrases[phase]))customPhrases[phase]=[];
+  customPhrases[phase].push(text);
+  store.set('customPhasePhrases',customPhrases);
+  input.value=''; renderCustomPhasePhrases(); toast('Frase guardada para esta fase');
+});
+$('#customPhraseList').addEventListener('click',e=>{
+  const use=e.target.closest('[data-use-custom]'), del=e.target.closest('[data-delete-custom]');
+  if(use){const text=customPhrases[phase][+use.dataset.useCustom];if(text){$('#phaseSay').innerHTML=`<div class="say">${esc(text)}<small>Tu frase para esta fase</small></div>`;}return;}
+  if(del){customPhrases[phase].splice(+del.dataset.deleteCustom,1);store.set('customPhasePhrases',customPhrases);renderCustomPhasePhrases();}
+});
 $('#moreSay').onclick=()=>{sayIdx++;renderPhase()};
 $('#nextPhase').onclick=()=>{phase=phase===PHASES.length-1?0:phase+1;sayIdx=0;store.set('phase',phase);renderPhase();scrollTo({top:0,behavior:'smooth'})};
 $('#prevPhase').onclick=()=>{if(phase>0){phase--;sayIdx=0;store.set('phase',phase);renderPhase()}};
@@ -694,7 +726,11 @@ let tInt=null;
 $('#tbtn').onclick=()=>{clearInterval(tInt);let n=3;$('#tval').textContent=n;tInt=setInterval(()=>{n--;if(n<=0){clearInterval(tInt);$('#tval').textContent='¡Ve!';try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}else $('#tval').textContent=n},1000)};
 
 /* ---------- tabs ---------- */
-$$('nav.tabs button').forEach(b=>b.onclick=()=>{$$('nav.tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));scrollTo({top:0})});
+$('nav.tabs button').forEach(b=>b.onclick=()=>{
+  $('nav.tabs button').forEach(x=>{x.classList.toggle('on',x===b);if(x===b)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
+  $('.view').forEach(v=>{const active=v.id==='v-'+b.dataset.v;v.classList.toggle('on',active);v.setAttribute('aria-hidden',String(!active))});
+  scrollTo({top:0});
+});
 
 renderPhase();renderIOI();renderLevel();renderEsc();
 if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
