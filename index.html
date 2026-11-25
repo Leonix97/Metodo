@@ -124,6 +124,10 @@ li{margin:4px 0}
 [data-l="4"]{--lc:#6b6f8a;--lbg:#ecedf3}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) [data-l="1"]{--lc:#3fa872;--lbg:#15281e}:root:not([data-theme="light"]) [data-l="2"]{--lc:#d99128;--lbg:#2e2412}:root:not([data-theme="light"]) [data-l="3"]{--lc:#e04a55;--lbg:#331719}:root:not([data-theme="light"]) [data-l="4"]{--lc:#8b8fab;--lbg:#22232c}}
 :root[data-theme="dark"] [data-l="1"]{--lc:#3fa872;--lbg:#15281e}:root[data-theme="dark"] [data-l="2"]{--lc:#d99128;--lbg:#2e2412}:root[data-theme="dark"] [data-l="3"]{--lc:#e04a55;--lbg:#331719}:root[data-theme="dark"] [data-l="4"]{--lc:#8b8fab;--lbg:#22232c}
+.lvl-card .say.rnd{font-size:20px;line-height:1.35;margin:10px 0;padding:14px}
+.lvl-more{background:transparent;border:0;margin:8px 0 0}
+.lvl-more summary{padding:8px 0;font-size:13px;color:var(--muted)}
+.lvl-more .in{padding:0 0 4px}
 </style>
 </head>
 <body>
@@ -189,8 +193,7 @@ li{margin:4px 0}
 <!-- ============ FRASES ============ -->
 <section class="view on" id="v-frases" role="region" aria-labelledby="frasesTitle" aria-hidden="false">
   <div class="lvl-head">
-    <h2 id="frasesTitle" style="margin-bottom:2px">¿En qué nivel van?</h2>
-    <p class="muted small" style="margin:0">Empieza siempre en el 1. Sube cuando veas las señales; si ella baja el ritmo, baja tú también.</p>
+    <h2 id="frasesTitle" style="margin-bottom:0">¿En qué nivel van?</h2>
   </div>
   <div class="stepper" id="stepper"></div>
   <div class="lvl-card" id="lvlCard"></div>
@@ -648,12 +651,20 @@ function renderLevel(){
   $$('#stepper button').forEach(b=>b.onclick=()=>{lvl=+b.dataset.go;cat='all';store.set('lvl',lvl);$('#q').value='';renderLevel()});
   const nx=LEVELS[lvl];
   $('#lvlCard').setAttribute('data-l',lvl);
-  $('#lvlCard').innerHTML=`<span class="tag">${L0.tag}</span><h3 class="tt">${L0.name}</h3><p class="small" style="margin:0">${L0.desc}</p>
-   <div id="rndOut"></div>
-   <div class="row" style="margin-top:8px"><button class="btn primary" id="rndBtn">🎲 Dame una de este nivel</button></div>
+  $('#lvlCard').innerHTML=`<span class="tag">${L0.tag}</span>
+   <div id="rndOut" aria-live="polite"></div>
+   <div class="row"><button type="button" class="btn primary" id="rndBtn">Otra ↻</button><button type="button" class="btn" id="rndCopy">Copiar</button></div>
+   <details class="lvl-more"><summary>${lvl<4?'Cuándo subir o bajar de nivel':'Qué hay aquí'}</summary><div class="in">
+   <p class="small" style="margin:0">${L0.desc}</p>
    ${L0.up.length?`<div class="sub">${lvl<3?'Sube al nivel '+(lvl+1)+' cuando:':'Ojo en este nivel:'}</div><ul>${L0.up.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}
-   <div class="row" style="margin-top:6px">${lvl>1&&lvl<4?`<button class="btn ghost" id="lvDown">← Bajar al ${lvl-1}</button>`:''}${lvl<3?`<button class="btn" id="lvUp">Subir al ${lvl+1} →</button>`:''}</div>`;
-  $('#rndBtn').onclick=()=>{const pool=L.filter(x=>L0.cats.includes(x[0])&&!/^(Principio|Si pierdes)/.test(x[1]));const l=pick(pool);$('#rndOut').innerHTML=`<div class="say">${esc(l[1])}<small>${esc(l[2])}</small></div><button class="btn ghost" id="rndCopy">Copiar</button>`;$('#rndCopy').onclick=()=>copy(l[1])};
+   <div class="row" style="margin-top:6px">${lvl>1&&lvl<4?`<button type="button" class="btn ghost" id="lvDown">← Bajar al ${lvl-1}</button>`:''}${lvl<3?`<button type="button" class="btn" id="lvUp">Subir al ${lvl+1} →</button>`:''}</div>
+   </div></details>`;
+  const pool=L.filter(x=>L0.cats.includes(x[0])&&!/^(Principio|Si pierdes)/.test(x[1]));
+  let cur=null;
+  const showRnd=()=>{let l;do{l=pick(pool)}while(pool.length>1&&l===cur);cur=l;$('#rndOut').innerHTML=`<div class="say rnd">${esc(l[1])}</div>`};
+  $('#rndBtn').onclick=showRnd;
+  $('#rndCopy').onclick=()=>cur&&copy(cur[1]);
+  showRnd();
   if($('#lvUp'))$('#lvUp').onclick=()=>{lvl++;cat='all';store.set('lvl',lvl);renderLevel();scrollTo({top:0,behavior:'smooth'})};
   if($('#lvDown'))$('#lvDown').onclick=()=>{lvl--;cat='all';store.set('lvl',lvl);renderLevel();scrollTo({top:0,behavior:'smooth'})};
   renderCats();renderLines();
