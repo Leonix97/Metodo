@@ -726,9 +726,9 @@ let tInt=null;
 $('#tbtn').onclick=()=>{clearInterval(tInt);let n=3;$('#tval').textContent=n;tInt=setInterval(()=>{n--;if(n<=0){clearInterval(tInt);$('#tval').textContent='¡Ve!';try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}else $('#tval').textContent=n},1000)};
 
 /* ---------- tabs ---------- */
-$('nav.tabs button').forEach(b=>b.onclick=()=>{
-  $('nav.tabs button').forEach(x=>{x.classList.toggle('on',x===b);if(x===b)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
-  $('.view').forEach(v=>{const active=v.id==='v-'+b.dataset.v;v.classList.toggle('on',active);v.setAttribute('aria-hidden',String(!active))});
+$$('nav.tabs button').forEach(b=>b.onclick=()=>{
+  $$('nav.tabs button').forEach(x=>{x.classList.toggle('on',x===b);if(x===b)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
+  $$('.view').forEach(v=>{const active=v.id==='v-'+b.dataset.v;v.classList.toggle('on',active);v.setAttribute('aria-hidden',String(!active))});
   scrollTo({top:0});
 });
 
